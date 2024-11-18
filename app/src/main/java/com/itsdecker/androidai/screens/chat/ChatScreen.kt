@@ -37,12 +37,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.itsdecker.androidai.requests.claude.ANTHROPIC_MESSENGER_ROLE_ASSISTANT
-import com.itsdecker.androidai.requests.claude.ANTHROPIC_MESSENGER_ROLE_USER
-import com.itsdecker.androidai.requests.claude.ClaudeApiError
+import com.itsdecker.androidai.network.claude.ANTHROPIC_MESSENGER_ROLE_ASSISTANT
+import com.itsdecker.androidai.network.claude.ANTHROPIC_MESSENGER_ROLE_USER
+import com.itsdecker.androidai.network.claude.ClaudeApiError
 import com.itsdecker.androidai.ui.theme.spacing
 import java.text.SimpleDateFormat
 import java.util.Date

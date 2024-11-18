@@ -1,4 +1,4 @@
-package com.itsdecker.androidai.requests.claude
+package com.itsdecker.androidai.network.claude
 
 // Constant Values Relating to Claude API
 

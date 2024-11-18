@@ -1,4 +1,4 @@
-package com.itsdecker.androidai.requests.claude
+package com.itsdecker.androidai.network.claude
 
 import retrofit2.http.Body
 import retrofit2.http.Header

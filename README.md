@@ -15,3 +15,4 @@ Exploratory AI APIs Android App
 [] Add persistent storage for credentials
 [] Conversation deletions
 [] Message editing
+[] Create spend time on UI theme color customization

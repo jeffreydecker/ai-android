@@ -50,7 +50,7 @@ class MainActivity : ComponentActivity() {
                                 onChatNowClick = {
                                     navigate(
                                         navController,
-                                        NavigationDestination.Chat,
+                                        NavigationDestination.Chat(),
                                     )
                                 },
                                 onAddModelClick = {
