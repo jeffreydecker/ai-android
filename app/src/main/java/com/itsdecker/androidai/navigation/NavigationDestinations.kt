@@ -11,5 +11,8 @@ sealed class NavigationDestination {
     data object AddModel : NavigationDestination()
 
     @Serializable
+    data object Chat : NavigationDestination()
+
+    @Serializable
     data class Secondary(val selectedModel: String) : NavigationDestination()
 }

@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -28,9 +29,10 @@ import com.itsdecker.androidai.ui.theme.Typography
 )
 @Composable
 fun MainScreen(
+    onChatNowClick: () -> Unit = {},
     onAddModelClick: () -> Unit = {},
 ) {
-    AndroidaiTheme(darkTheme = true) {
+    AndroidaiTheme {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -50,6 +52,17 @@ fun MainScreen(
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
+
+                OutlinedButton(
+                    onClick = onChatNowClick,
+                    modifier = Modifier
+                        .fillMaxWidth(fraction = 0.7f)
+                        .align(Alignment.CenterHorizontally),
+                ) {
+                    Text(
+                        text = "Chat Now",
+                    )
+                }
 
                 // TODO - Add Models List Here
             }
