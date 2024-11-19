@@ -4,21 +4,28 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.itsdecker.androidai.database.ChatDatabase
 import com.itsdecker.androidai.navigation.NavigationArgs
 import com.itsdecker.androidai.network.CLAUDE_EXPLORATION
 import com.itsdecker.androidai.network.claude.ANTHROPIC_MESSENGER_ROLE_ASSISTANT
 import com.itsdecker.androidai.network.claude.ANTHROPIC_MESSENGER_ROLE_USER
 import com.itsdecker.androidai.network.claude.ClaudeApiClient
 import com.itsdecker.androidai.network.claude.ClaudeApiError
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 // TODO - Without Hilt we need a view model factory to pass params like the
 //  repository, potentially the api client and nav controller
 
-class ChatViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel() {
+@HiltViewModel
+class ChatViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
+    val chatDatabase: ChatDatabase,
+) : ViewModel() {
 
     private val apiClient = ClaudeApiClient(CLAUDE_EXPLORATION)
 

@@ -14,21 +14,6 @@ abstract class ChatDatabase : RoomDatabase() {
     abstract fun messageDao(): MessageDao
 
     companion object {
-        private const val CHAT_DATABASE_NAME = "chat_database"
-
-        @Volatile
-        private var INSTANCE: ChatDatabase? = null
-
-        fun getDatabase(context: Context): ChatDatabase {
-            return INSTANCE ?: synchronized(this) {
-                Room.databaseBuilder(
-                    context.applicationContext,
-                    ChatDatabase::class.java,
-                    CHAT_DATABASE_NAME,
-                ).build().also {
-                    INSTANCE = it
-                }
-            }
-        }
+        const val CHAT_DATABASE_NAME = "chat_database"
     }
 }

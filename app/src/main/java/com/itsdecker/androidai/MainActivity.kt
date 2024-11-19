@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -26,7 +27,9 @@ import com.itsdecker.androidai.screens.main.MainScreen
 import com.itsdecker.androidai.screens.SecondaryScreen
 import com.itsdecker.androidai.screens.chat.ChatScreen
 import com.itsdecker.androidai.ui.theme.AndroidaiTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,7 +68,7 @@ class MainActivity : ComponentActivity() {
                             AddModelScreen(viewModel())
                         }
                         composable<NavigationDestination.Chat> {
-                            ChatScreen(viewModel())
+                            ChatScreen(hiltViewModel())
                         }
                         composable<NavigationDestination.Secondary> {
                             val route = it.toRoute<NavigationDestination.Secondary>()
