@@ -7,9 +7,20 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.Relation
 
-@Entity(tableName = "conversations")
+@Entity(
+    tableName = "conversations",
+    foreignKeys = [
+        ForeignKey(
+            entity = ChatModelEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["chatModelId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ]
+)
 data class ConversationEntity(
     @PrimaryKey val id: String,
+    val chatModelId: String,
     val createdAt: Long = System.currentTimeMillis(),
     val title: String? = null
 )

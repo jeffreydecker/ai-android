@@ -12,7 +12,4 @@ sealed class NavigationDestination {
 
     @Serializable
     data class Chat(val conversationId: String = "placeholder") : NavigationDestination()
-
-    @Serializable
-    data class Secondary(val selectedModel: String) : NavigationDestination()
 }

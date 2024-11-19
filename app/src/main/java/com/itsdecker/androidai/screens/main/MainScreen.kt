@@ -16,21 +16,36 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.itsdecker.androidai.data.SupportedModel
+import com.itsdecker.androidai.database.ChatModelEntity
 import com.itsdecker.androidai.ui.theme.AndroidaiTheme
 import com.itsdecker.androidai.ui.theme.Typography
 
-@Preview(
-    showBackground = true,
-)
 @Composable
 fun MainScreen(
-    onChatNowClick: () -> Unit = {},
-    onAddModelClick: () -> Unit = {},
+    mainViewModel: MainViewModel,
+) {
+    val chatModels by mainViewModel.chatModels.collectAsState()
+
+    MainWindow(
+        chatModels,
+        { mainViewModel.goToChat() },
+        { mainViewModel.goToAddModel() },
+    )
+}
+
+@Composable
+private fun MainWindow(
+    chatModels: List<ChatModelEntity>,
+    goToChat: () -> Unit,
+    goToAddModel: () -> Unit,
 ) {
     AndroidaiTheme {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -54,7 +69,7 @@ fun MainScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 OutlinedButton(
-                    onClick = onChatNowClick,
+                    onClick = goToChat,
                     modifier = Modifier
                         .fillMaxWidth(fraction = 0.7f)
                         .align(Alignment.CenterHorizontally),
@@ -63,6 +78,10 @@ fun MainScreen(
                         text = "Chat Now",
                     )
                 }
+                Text(
+                    text = "${chatModels.count()}",
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                )
 
                 // TODO - Add Models List Here
             }
@@ -71,7 +90,7 @@ fun MainScreen(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp),
-                onClick = { onAddModelClick() },
+                onClick = goToAddModel,
             )
         }
     }
@@ -96,5 +115,24 @@ fun AddModelInfoButton(
         onClick = onClick,
         shape = CircleShape,
         modifier = modifier,
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MainScreenPreview() {
+    MainWindow(
+        listOf(
+            ChatModelEntity(
+                id = "",
+                createdAt = System.currentTimeMillis(),
+                name = "My Claude Model",
+                description = "",
+                apiKey = "",
+                chatModel = SupportedModel.CLAUDE,
+            )
+        ),
+        {},
+        {},
     )
 }

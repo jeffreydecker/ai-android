@@ -1,36 +1,36 @@
 package com.itsdecker.androidai
 
-import android.os.Build
 import android.os.Bundle
-import android.webkit.WebView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import com.itsdecker.androidai.navigation.NavigationDestination
+import com.itsdecker.androidai.navigation.Navigator
 import com.itsdecker.androidai.screens.addmodel.AddModelScreen
 import com.itsdecker.androidai.screens.main.MainScreen
-import com.itsdecker.androidai.screens.SecondaryScreen
 import com.itsdecker.androidai.screens.chat.ChatScreen
 import com.itsdecker.androidai.ui.theme.AndroidaiTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject lateinit var navigator: Navigator
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,36 +43,20 @@ class MainActivity : ComponentActivity() {
                         .imePadding(),
                 ) { innerPadding ->
                     val navController = rememberNavController()
+                    observeNavigation(navController)
                     NavHost(
                         navController = navController,
                         startDestination = NavigationDestination.Main,
                         modifier = Modifier.padding(innerPadding),
                     ) {
                         composable<NavigationDestination.Main> {
-                            MainScreen(
-                                onChatNowClick = {
-                                    navigate(
-                                        navController,
-                                        NavigationDestination.Chat(),
-                                    )
-                                },
-                                onAddModelClick = {
-                                    navigate(
-                                        navController,
-                                        NavigationDestination.AddModel
-                                    )
-                                },
-                            )
+                            MainScreen(hiltViewModel())
                         }
                         composable<NavigationDestination.AddModel> {
-                            AddModelScreen(viewModel())
+                            AddModelScreen(hiltViewModel())
                         }
                         composable<NavigationDestination.Chat> {
                             ChatScreen(hiltViewModel())
-                        }
-                        composable<NavigationDestination.Secondary> {
-                            val route = it.toRoute<NavigationDestination.Secondary>()
-                            SecondaryScreen(route.selectedModel)
                         }
                     }
                 }
@@ -80,7 +64,16 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun navigate(navController: NavController, destination: NavigationDestination) {
-        navController.navigate(destination)
+    private fun observeNavigation(navController: NavController) {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                navigator.navigationEvent.collect { navigationEvent ->
+                    when (navigationEvent) {
+                        Navigator.Event.GoBack -> navController.navigateUp()
+                        is Navigator.Event.NavigateTo -> navController.navigate(navigationEvent.destination)
+                    }
+                }
+            }
+        }
     }
 }

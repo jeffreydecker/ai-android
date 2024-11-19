@@ -38,15 +38,16 @@ fun AddModelScreen(
     val selectedModel = viewModel.modelSelection.collectAsState()
     val currentField = viewModel.currentField.collectAsState()
 
-    // TODO - This isn't working...
     BackHandler(
-        enabled = selectedModel.value == null,
+        enabled = selectedModel.value != null,
     ) {
         viewModel.goBack()
     }
 
     if (selectedModel.value == null) {
-        ModelSelection { modelSelection -> viewModel.setModel(modelSelection) }
+        ModelSelection(
+            viewModel.supportedModels,
+        ) { modelSelection -> viewModel.setModel(modelSelection) }
     } else if (currentField.value != null) {
         (currentField.value)?.let { formField ->
             SetFieldStep(
@@ -67,6 +68,7 @@ fun AddModelScreen(
 
 @Composable
 fun ModelSelection(
+    supportedModels: List<SupportedModel>,
     onModelSelected: (SupportedModel) -> Unit,
 ) {
     Column(
@@ -90,7 +92,7 @@ fun ModelSelection(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        for(model in SupportedModel.entries) {
+        for(model in supportedModels) {
             ModelButton(
                 modelIcon = model.icon,
                 modelName = model.modelName,
