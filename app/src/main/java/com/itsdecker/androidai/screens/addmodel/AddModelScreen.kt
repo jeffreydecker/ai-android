@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -95,6 +96,7 @@ fun ModelSelection(
         for(model in supportedModels) {
             ModelButton(
                 modelIcon = model.icon,
+                modelColor = model.brandColor,
                 modelName = model.modelName,
                 onClick = { if (model == SupportedModel.CLAUDE) onModelSelected(model) },
                 modifier = Modifier
@@ -108,6 +110,7 @@ fun ModelSelection(
 @Composable
 fun ModelButton(
     @DrawableRes modelIcon: Int,
+    modelColor: Color,
     modelName: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -116,14 +119,14 @@ fun ModelButton(
         modifier = modifier,
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(
-            containerColor = OpacW10,
-            contentColor = Color.White
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            contentColor = MaterialTheme.colorScheme.onSurface,
         ),
     ) {
         Icon(
             painter = painterResource(modelIcon),
             contentDescription = null,
-            tint = Claude,
+            tint = modelColor,
         )
         Text(
             text = modelName,
