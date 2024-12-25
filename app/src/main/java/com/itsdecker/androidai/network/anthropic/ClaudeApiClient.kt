@@ -1,6 +1,7 @@
-package com.itsdecker.androidai.network.claude
+package com.itsdecker.androidai.network.anthropic
 
 import com.google.gson.Gson
+import com.itsdecker.androidai.BuildConfig
 import com.itsdecker.androidai.screens.chat.ChatMessage
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -9,27 +10,27 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 
-// Claude Api wrapper for clean api access
-class ClaudeApiClient(private val apiKey: String) {
+class ClaudeApiClient() {
     private val retrofit = Retrofit.Builder()
         .baseUrl(ANTHROPIC_BASE_URL)
         .addConverterFactory(GsonConverterFactory.create())
         .client(OkHttpClient.Builder()
             .addInterceptor(HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BODY
-                // TODO - Not sure what's up with build config
-//                level = if (BuildConfig.DEBUG) {
-//                    HttpLoggingInterceptor.Level.BODY
-//                } else {
-//                    HttpLoggingInterceptor.Level.NONE
-//                }
+                level = if (BuildConfig.DEBUG) {
+                    HttpLoggingInterceptor.Level.BODY
+                } else {
+                    HttpLoggingInterceptor.Level.NONE
+                }
             })
             .build())
         .build()
 
     private val api = retrofit.create(ClaudeApi::class.java)
 
-    suspend fun sendMessage(conversationHistory: List<ChatMessage>): String {
+    suspend fun sendMessage(
+        apiKey: String,
+        conversationHistory: List<ChatMessage>,
+    ): String {
         val request = ClaudeRequest(
             messages = conversationHistory.map {
                 Message(it.role, it.content)

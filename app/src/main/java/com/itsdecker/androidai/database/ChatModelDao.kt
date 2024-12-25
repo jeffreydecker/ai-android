@@ -13,6 +13,9 @@ interface ChatModelDao {
     @Query("SELECT * FROM chat_models ORDER BY createdAt DESC")
     fun getAllChatModels(): Flow<List<ChatModelEntity>>
 
+    @Query("SELECT * FROM chat_models WHERE id = :chatModelId")
+    fun getChatModel(chatModelId: String): ChatModelEntity
+
     @Transaction
     @Query("SELECT * FROM chat_models WHERE id = :chatModelId")
     fun getAllChatModelConversations(chatModelId: String): Flow<ChatModelWithConversations>
@@ -22,4 +25,7 @@ interface ChatModelDao {
 
     @Delete
     fun deleteChatModel(chatModelEntity: ChatModelEntity)
+
+    @Query("DELETE FROM chat_models")
+    fun deleteChatModels()
 }

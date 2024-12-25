@@ -4,12 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.itsdecker.androidai.data.respository.ChatRepository
 import com.itsdecker.androidai.database.ChatModelEntity
-import com.itsdecker.androidai.navigation.NavigationDestination
+import com.itsdecker.androidai.navigation.NavRoute
 import com.itsdecker.androidai.navigation.Navigator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,6 +26,12 @@ class MainViewModel @Inject constructor(
             initialValue = emptyList()
         )
 
-    fun goToChat() = navigator.navigateTo(NavigationDestination.Chat())
-    fun goToAddModel() = navigator.navigateTo(NavigationDestination.AddModel)
+    fun clearTable() {
+        viewModelScope.launch {
+            chatRepository.deleteChatModels()
+        }
+    }
+
+    fun goToChat(apiKeyId: String) = navigator.navigateTo(NavRoute.Chat(apiKeyId = apiKeyId))
+    fun goToAddModel() = navigator.navigateTo(NavRoute.AddKey)
 }

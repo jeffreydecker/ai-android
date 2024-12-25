@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">androidai</string>
+
+    // Main Screen
+    <string name="app_title">Android.AI</string>
+    <string name="app_prompt">Add or select a model to get started</string>
+
+    // Buttons
+    <string name="add_key_button">Add An API Key</string>
+    <string name="chat_now_button">Chat Now</string>
 </resources>

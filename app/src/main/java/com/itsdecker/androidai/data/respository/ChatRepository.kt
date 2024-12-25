@@ -1,6 +1,6 @@
 package com.itsdecker.androidai.data.respository
 
-import com.itsdecker.androidai.data.SupportedModel
+import com.itsdecker.androidai.data.SupportedProvider
 import com.itsdecker.androidai.database.ChatDatabase
 import com.itsdecker.androidai.database.ChatModelEntity
 import com.itsdecker.androidai.database.ConversationEntity
@@ -9,13 +9,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.UUID
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class ChatRepository @Inject constructor(
     database: ChatDatabase,
 ) {
     private val chatModelsDao = database.chatModelDao()
     private val conversationDao = database.conversationDao()
     private val messageDao = database.messageDao()
+
+    fun getChatModel(chatModelId: String) =
+        chatModelsDao.getChatModel(chatModelId = chatModelId)
 
     fun getAllChatModels() = chatModelsDao.getAllChatModels()
 
@@ -24,20 +29,24 @@ class ChatRepository @Inject constructor(
 
     fun getConversation(id: String) = conversationDao.getConversationWithMessages(id)
 
-    suspend fun createChatModel(
+    suspend fun createApiKey(
         name: String,
         description: String,
         apiKey: String,
-        supportedModel: SupportedModel,
+        supportedProvider: SupportedProvider,
     ) = withContext(Dispatchers.IO) {
         val chatModel = ChatModelEntity(
             id = UUID.randomUUID().toString(),
             name = name,
             description = description,
             apiKey = apiKey,
-            chatModel = supportedModel,
+            chatModel = supportedProvider,
         )
         chatModelsDao.insertModel(chatModel)
+    }
+
+    suspend fun deleteChatModels() = withContext(Dispatchers.IO) {
+        chatModelsDao.deleteChatModels()
     }
 
     suspend fun createConversation(chatModelId: String, title: String? = null): String  = withContext(Dispatchers.IO) {

@@ -1,4 +1,4 @@
-package com.itsdecker.androidai.network.claude
+package com.itsdecker.androidai.network.anthropic
 
 import com.google.gson.annotations.SerializedName
 
@@ -10,7 +10,7 @@ data class Message(
 )
 
 data class ClaudeRequest(
-    val model: String = ANTHROPIC_CLAUDE_3_5_MODEL_SONNET, // TODO - Make this selectable
+    val model: String = ANTHROPIC_CLAUDE_MODEL_DEFAULT, // TODO - Make this selectable
     @SerializedName(value = "max_tokens")
     val maxTokens: Int = ANTHROPIC_API_DEFAULT_MAX_TOKENS,
     val messages: List<Message>

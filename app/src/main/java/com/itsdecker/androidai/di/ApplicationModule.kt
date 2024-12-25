@@ -5,7 +5,7 @@ import androidx.room.Room
 import com.itsdecker.androidai.database.ChatDatabase
 import com.itsdecker.androidai.database.ChatDatabase.Companion.CHAT_DATABASE_NAME
 import com.itsdecker.androidai.network.CLAUDE_EXPLORATION
-import com.itsdecker.androidai.network.claude.ClaudeApiClient
+import com.itsdecker.androidai.network.anthropic.ClaudeApiClient
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -28,5 +28,5 @@ class ApplicationModule {
 
     @Provides
     @Singleton
-    fun provideClaudeApi() = ClaudeApiClient(CLAUDE_EXPLORATION)
+    fun provideClaudeApi() = ClaudeApiClient()
 }

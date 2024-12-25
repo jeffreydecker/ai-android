@@ -2,6 +2,14 @@ package com.itsdecker.androidai.data
 
 sealed class ModelField(val name: String, val details: String) {
 
+    companion object {
+        val DEFAULT_FIELDS = listOf(
+            Text.Name(""),
+            Text.Description(""),
+            Text.ApiKey(""),
+        )
+    }
+
     sealed class Text(open var value: String, name: String, details: String): ModelField(name, details) {
 
         data class Name(override var value: String) : Text(
@@ -22,6 +30,4 @@ sealed class ModelField(val name: String, val details: String) {
             details = "The API key needed to access this model. Note this will only ever be stored locally.",
         )
     }
-
-    // TODO - Add others
 }

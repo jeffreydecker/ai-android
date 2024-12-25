@@ -1,9 +1,11 @@
-package com.itsdecker.androidai.screens.addmodel
+package com.itsdecker.androidai.screens.addkey
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.itsdecker.androidai.data.ModelField
-import com.itsdecker.androidai.data.SupportedModel
+import com.itsdecker.androidai.data.ModelField.Companion.DEFAULT_FIELDS
+import com.itsdecker.androidai.data.SUPPORTED_PROVIDERS
+import com.itsdecker.androidai.data.SupportedProvider
 import com.itsdecker.androidai.data.respository.ChatRepository
 import com.itsdecker.androidai.navigation.Navigator
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,14 +16,14 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class AddModelViewModel @Inject constructor(
+class AddKeyViewModel @Inject constructor(
     private val navigator: Navigator,
     private val chatRepo: ChatRepository,
 ) : ViewModel() {
 
-    val supportedModels = SupportedModel.entries.filter { it != SupportedModel.UNKNOWN }
+    val supportedProviders = SupportedProvider.entries.filter { it != SupportedProvider.UNKNOWN }
 
-    private val _modelSelection = MutableStateFlow<SupportedModel?>(null)
+    private val _modelSelection = MutableStateFlow<SupportedProvider?>(null)
     val modelSelection = _modelSelection.asStateFlow()
 
     private val formFields = mutableListOf<ModelField>()
@@ -30,9 +32,11 @@ class AddModelViewModel @Inject constructor(
     private val _currentField = MutableStateFlow<ModelField?>(null)
     val currentField = _currentField.asStateFlow()
 
-    fun setModel(model: SupportedModel) {
+    fun setProvider(model: SupportedProvider) {
+        if (!SUPPORTED_PROVIDERS.contains(model)) return
+
         _modelSelection.value = model
-        val modelFields = model.fields.toMutableList()
+        val modelFields = DEFAULT_FIELDS.toMutableList()
         _currentField.value = modelFields.removeFirstOrNull()
         formFields.apply {
             clear()
@@ -47,7 +51,6 @@ class AddModelViewModel @Inject constructor(
         _currentField.value = nextField
     }
 
-    // TODO - The Screen implementation that uses this wasn't working, we might need a new state field
     fun goBack() {
         val previousField = completedFormFields.removeLastOrNull()
         _currentField.value?.let { currentFormField -> formFields.add(0, currentFormField) }
@@ -71,13 +74,13 @@ class AddModelViewModel @Inject constructor(
         viewModelScope.launch {
             _modelSelection.value?.let {
                 async {
-                    chatRepo.createChatModel(
+                    chatRepo.createApiKey(
                         name = completedFormFields.firstOfType<ModelField.Text.Name>()?.value ?: "",
                         description = completedFormFields.firstOfType<ModelField.Text.Description>()?.value
                             ?: "",
                         apiKey = completedFormFields.firstOfType<ModelField.Text.ApiKey>()?.value
                             ?: "",
-                        supportedModel = it,
+                        supportedProvider = it,
                     )
                 }.await()
             }

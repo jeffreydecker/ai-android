@@ -1,4 +1,4 @@
-package com.itsdecker.androidai.network.claude
+package com.itsdecker.androidai.network.anthropic
 
 // Constant Values Relating to Claude API
 

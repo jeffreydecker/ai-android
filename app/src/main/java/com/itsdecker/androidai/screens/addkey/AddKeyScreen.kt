@@ -1,4 +1,4 @@
-package com.itsdecker.androidai.screens.addmodel
+package com.itsdecker.androidai.screens.addkey
 
 import androidx.activity.compose.BackHandler
 import androidx.annotation.DrawableRes
@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.ButtonDefaults
@@ -25,37 +24,40 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.itsdecker.androidai.data.ModelField
-import com.itsdecker.androidai.data.SupportedModel
-import com.itsdecker.androidai.ui.theme.Claude
-import com.itsdecker.androidai.ui.theme.OpacW10
+import com.itsdecker.androidai.data.SupportedProvider
 import com.itsdecker.androidai.ui.theme.Typography
+import com.itsdecker.androidai.ui.theme.spacing
 
 const val WIDTH_FRACTION = 0.7f
 
 @Composable
-fun AddModelScreen(
-    viewModel: AddModelViewModel,
+fun AddKeyScreen(
+    viewModel: AddKeyViewModel,
+    modifier: Modifier,
 ) {
-    val selectedModel = viewModel.modelSelection.collectAsState()
+    val selectedProvider = viewModel.modelSelection.collectAsState()
     val currentField = viewModel.currentField.collectAsState()
 
     BackHandler(
-        enabled = selectedModel.value != null,
+        enabled = selectedProvider.value != null,
     ) {
         viewModel.goBack()
     }
 
-    if (selectedModel.value == null) {
-        ModelSelection(
-            viewModel.supportedModels,
-        ) { modelSelection -> viewModel.setModel(modelSelection) }
+    if (selectedProvider.value == null) {
+        ProviderSelection(
+            supportedProviders = viewModel.supportedProviders,
+            onProviderSelected = { providerSelection -> viewModel.setProvider(providerSelection) },
+            modifier = modifier,
+        )
     } else if (currentField.value != null) {
         (currentField.value)?.let { formField ->
             SetFieldStep(
                 field = formField,
                 onTextValueChange = { textValue -> viewModel.updateTextValue(textValue) },
                 onGoBack = { viewModel.goBack() },
-                onFieldSubmit = { viewModel.submitCurrentField() }
+                onFieldSubmit = { viewModel.submitCurrentField() },
+                modifier = modifier,
             )
         }
 
@@ -63,23 +65,28 @@ fun AddModelScreen(
         SubmissionStep(
             goBackClicked = { viewModel.goBack() },
             saveModelClicked = { viewModel.saveModel() },
+            modifier = modifier,
         )
     }
 }
 
 @Composable
-fun ModelSelection(
-    supportedModels: List<SupportedModel>,
-    onModelSelected: (SupportedModel) -> Unit,
+fun ProviderSelection(
+    supportedProviders: List<SupportedProvider>,
+    onProviderSelected: (SupportedProvider) -> Unit,
+    modifier: Modifier,
 ) {
     Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(
+            space = MaterialTheme.spacing.default,
+            alignment = Alignment.CenterVertically,
+        ),
     ) {
         Text(
             modifier = Modifier.fillMaxWidth(),
             textAlign = TextAlign.Center,
-            text = "Select a Model",
+            text = "Select a Provider",
             style = Typography.titleLarge,
         )
         Text(
@@ -87,18 +94,18 @@ fun ModelSelection(
                 .fillMaxWidth(fraction = WIDTH_FRACTION)
                 .align(Alignment.CenterHorizontally),
             textAlign = TextAlign.Center,
-            text = "Select the model to get started",
+            text = "Select the provider to get started",
             style = Typography.bodySmall,
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.medium))
 
-        for(model in supportedModels) {
-            ModelButton(
-                modelIcon = model.icon,
-                modelColor = model.brandColor,
-                modelName = model.modelName,
-                onClick = { if (model == SupportedModel.CLAUDE) onModelSelected(model) },
+        for(model in supportedProviders) {
+            ProviderButton(
+                providerIcon = model.icon,
+                providerColor = model.brandColor,
+                providerName = model.providerName,
+                onClick = { onProviderSelected(model) },
                 modifier = Modifier
                     .fillMaxWidth(WIDTH_FRACTION)
                     .align(Alignment.CenterHorizontally),
@@ -108,10 +115,10 @@ fun ModelSelection(
 }
 
 @Composable
-fun ModelButton(
-    @DrawableRes modelIcon: Int,
-    modelColor: Color,
-    modelName: String,
+fun ProviderButton(
+    @DrawableRes providerIcon: Int,
+    providerColor: Color,
+    providerName: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -124,12 +131,12 @@ fun ModelButton(
         ),
     ) {
         Icon(
-            painter = painterResource(modelIcon),
+            painter = painterResource(providerIcon),
             contentDescription = null,
-            tint = modelColor,
+            tint = providerColor,
         )
         Text(
-            text = modelName,
+            text = providerName,
             style = Typography.titleMedium,
             textAlign = TextAlign.Center,
             modifier = Modifier.weight(1f),
@@ -143,10 +150,14 @@ fun SetFieldStep(
     onTextValueChange: (String) -> Unit,
     onGoBack: () -> Unit,
     onFieldSubmit: () -> Unit,
+    modifier: Modifier,
 ) {
     Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(
+            MaterialTheme.spacing.default,
+            Alignment.CenterVertically,
+        ),
     ) {
         Text(
             modifier = Modifier.fillMaxWidth(),
@@ -163,7 +174,7 @@ fun SetFieldStep(
             style = Typography.bodySmall
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.medium))
 
         when (field) {
             is ModelField.Text -> {
@@ -191,7 +202,7 @@ fun TextFormField(
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.default),
     ) {
         OutlinedTextField(
             value = value,
@@ -200,7 +211,7 @@ fun TextFormField(
         )
 
         Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.default)
         ) {
             OutlinedButton(
                 onClick = onGoBack,
@@ -222,10 +233,14 @@ fun TextFormField(
 fun SubmissionStep(
     goBackClicked: () -> Unit,
     saveModelClicked: () -> Unit,
+    modifier: Modifier,
 ) {
     Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(
+            MaterialTheme.spacing.default,
+            Alignment.CenterVertically,
+        ),
     ) {
         Text(
             modifier = Modifier.fillMaxWidth(),
@@ -251,7 +266,7 @@ fun SubmissionStep(
                 .fillMaxWidth(WIDTH_FRACTION)
                 .align(Alignment.CenterHorizontally),
         ) {
-            Text("Save Model")
+            Text("Save API Key")
         }
     }
 }

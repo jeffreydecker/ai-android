@@ -4,7 +4,7 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.Relation
-import com.itsdecker.androidai.data.SupportedModel
+import com.itsdecker.androidai.data.SupportedProvider
 
 @Entity(tableName = "chat_models")
 data class ChatModelEntity(
@@ -13,7 +13,7 @@ data class ChatModelEntity(
     val name: String,
     val description: String,
     val apiKey: String,
-    val chatModel: SupportedModel,
+    val chatModel: SupportedProvider,
 )
 
 data class ChatModelWithConversations(

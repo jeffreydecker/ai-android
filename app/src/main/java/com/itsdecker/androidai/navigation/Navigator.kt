@@ -14,14 +14,14 @@ class Navigator @Inject constructor() {
     private val _navigationEvent = Channel<Event>()
     val navigationEvent = _navigationEvent.receiveAsFlow()
 
-    fun navigateTo(destination: NavigationDestination) {
+    fun navigateTo(destination: NavRoute) {
         _navigationEvent.trySend(Event.NavigateTo(destination))
     }
 
     fun goBack() = _navigationEvent.trySend(Event.GoBack)
 
     sealed interface Event {
-        data class NavigateTo(val destination: NavigationDestination) : Event
+        data class NavigateTo(val destination: NavRoute) : Event
         data object GoBack : Event
     }
 }
