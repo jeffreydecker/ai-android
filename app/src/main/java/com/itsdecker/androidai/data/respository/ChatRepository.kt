@@ -2,7 +2,7 @@ package com.itsdecker.androidai.data.respository
 
 import com.itsdecker.androidai.data.SupportedProvider
 import com.itsdecker.androidai.database.ChatDatabase
-import com.itsdecker.androidai.database.ChatModelEntity
+import com.itsdecker.androidai.database.ApiKeyEntity
 import com.itsdecker.androidai.database.ConversationEntity
 import com.itsdecker.androidai.database.MessageEntity
 import kotlinx.coroutines.Dispatchers
@@ -15,7 +15,7 @@ import javax.inject.Singleton
 class ChatRepository @Inject constructor(
     database: ChatDatabase,
 ) {
-    private val chatModelsDao = database.chatModelDao()
+    private val chatModelsDao = database.apiKeyDao()
     private val conversationDao = database.conversationDao()
     private val messageDao = database.messageDao()
 
@@ -35,7 +35,7 @@ class ChatRepository @Inject constructor(
         apiKey: String,
         supportedProvider: SupportedProvider,
     ) = withContext(Dispatchers.IO) {
-        val chatModel = ChatModelEntity(
+        val chatModel = ApiKeyEntity(
             id = UUID.randomUUID().toString(),
             name = name,
             description = description,

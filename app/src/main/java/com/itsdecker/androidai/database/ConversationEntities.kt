@@ -8,10 +8,10 @@ import androidx.room.PrimaryKey
 import androidx.room.Relation
 
 @Entity(
-    tableName = "conversations",
+    tableName = "Conversation",
     foreignKeys = [
         ForeignKey(
-            entity = ChatModelEntity::class,
+            entity = ApiKeyEntity::class,
             parentColumns = ["id"],
             childColumns = ["chatModelId"],
             onDelete = ForeignKey.CASCADE
@@ -26,7 +26,7 @@ data class ConversationEntity(
 )
 
 @Entity(
-    tableName = "messages",
+    tableName = "Message",
     foreignKeys = [
         ForeignKey(
             entity = ConversationEntity::class,

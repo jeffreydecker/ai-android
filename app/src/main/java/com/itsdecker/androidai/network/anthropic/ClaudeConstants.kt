@@ -1,6 +1,6 @@
 package com.itsdecker.androidai.network.anthropic
 
-// Constant Values Relating to Claude API
+// Constant Values Related to Anthropic API
 
 // Versions
 const val ANTHROPIC_VERSION = "2023-06-01"

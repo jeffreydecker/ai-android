@@ -6,8 +6,8 @@ import androidx.room.PrimaryKey
 import androidx.room.Relation
 import com.itsdecker.androidai.data.SupportedProvider
 
-@Entity(tableName = "chat_models")
-data class ChatModelEntity(
+@Entity(tableName = "ApiKey")
+data class ApiKeyEntity(
     @PrimaryKey val id: String,
     val createdAt: Long = System.currentTimeMillis(),
     val name: String,
@@ -16,8 +16,8 @@ data class ChatModelEntity(
     val chatModel: SupportedProvider,
 )
 
-data class ChatModelWithConversations(
-    @Embedded val model: ChatModelEntity,
+data class ApiKeyWithConversation(
+    @Embedded val model: ApiKeyEntity,
     @Relation(
         parentColumn = "id",
         entityColumn = "chatModelId"

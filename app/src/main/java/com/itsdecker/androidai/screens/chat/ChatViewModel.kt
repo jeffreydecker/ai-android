@@ -1,25 +1,21 @@
 package com.itsdecker.androidai.screens.chat
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.itsdecker.androidai.data.respository.ChatRepository
-import com.itsdecker.androidai.database.ChatModelEntity
+import com.itsdecker.androidai.database.ApiKeyEntity
 import com.itsdecker.androidai.navigation.NavRoute
-import com.itsdecker.androidai.navigation.NavigationArgs
 import com.itsdecker.androidai.network.anthropic.ANTHROPIC_MESSENGER_ROLE_ASSISTANT
 import com.itsdecker.androidai.network.anthropic.ANTHROPIC_MESSENGER_ROLE_USER
-import com.itsdecker.androidai.network.anthropic.ClaudeApiClient
-import com.itsdecker.androidai.network.anthropic.ClaudeApiError
+import com.itsdecker.androidai.network.anthropic.AnthropicApiClient
+import com.itsdecker.androidai.network.anthropic.AnthropicApiError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -28,12 +24,12 @@ import javax.inject.Inject
 class ChatViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val chatRepo: ChatRepository,
-    private val apiClient: ClaudeApiClient,
+    private val apiClient: AnthropicApiClient,
 ) : ViewModel() {
 
 
     private val chatRoute = savedStateHandle.toRoute<NavRoute.Chat>()
-    private lateinit var apiKey: ChatModelEntity
+    private lateinit var apiKey: ApiKeyEntity
 
     private val _conversation = MutableStateFlow(Conversation(emptyList()))
     val conversation: StateFlow<Conversation> = _conversation.asStateFlow()
@@ -41,12 +37,10 @@ class ChatViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
 
-    private val _error = MutableStateFlow<ClaudeApiError?>(null)
+    private val _error = MutableStateFlow<AnthropicApiError?>(null)
     val error = _error.asStateFlow()
 
     init {
-        Log.d("Decker Debug", "ChatViewModel got conversationId: ${chatRoute.conversationId}")
-
         viewModelScope.launch(context = Dispatchers.IO) {
             apiKey = chatRepo.getChatModel(chatModelId = chatRoute.apiKeyId)
         }
@@ -59,8 +53,6 @@ class ChatViewModel @Inject constructor(
                 // conversation = chatRepo.getConversation(conversationId).stateIn(scope = viewModelScope)
             }
         }
-
-
     }
 
     fun sendMessage(prompt: String) {
@@ -77,7 +69,7 @@ class ChatViewModel @Inject constructor(
                 )
                 val assistantMessage = ChatMessage(ANTHROPIC_MESSENGER_ROLE_ASSISTANT, result)
                 updateConversation(assistantMessage)
-            } catch (e: ClaudeApiError) {
+            } catch (e: AnthropicApiError) {
                 _error.value = e
             } finally {
                 _isLoading.value = false

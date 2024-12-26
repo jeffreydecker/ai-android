@@ -48,7 +48,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.itsdecker.androidai.network.anthropic.ANTHROPIC_MESSENGER_ROLE_ASSISTANT
 import com.itsdecker.androidai.network.anthropic.ANTHROPIC_MESSENGER_ROLE_USER
-import com.itsdecker.androidai.network.anthropic.ClaudeApiError
+import com.itsdecker.androidai.network.anthropic.AnthropicApiError
 import com.itsdecker.androidai.ui.theme.spacing
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -73,7 +73,7 @@ fun ChatScreen(viewModel: ChatViewModel) {
 fun ChatWindow(
     conversation: Conversation,
     isLoading: Boolean,
-    error: ClaudeApiError?,
+    error: AnthropicApiError?,
     sendMessage: (String) -> Unit,
 ) {
     // TODO - This is currently and easy way to keep chat scrolling. Longer term it would be nice
@@ -199,13 +199,13 @@ private fun ChatBubble(message: ChatMessage) {
 }
 
 @Composable
-fun ErrorMessage(error: ClaudeApiError) {
+fun ErrorMessage(error: AnthropicApiError) {
     val (icon, message) = when (error) {
-        is ClaudeApiError.AuthenticationError -> Icons.Rounded.Lock to error.message
-        is ClaudeApiError.RateLimitError -> Icons.Rounded.Timer to error.message
-        is ClaudeApiError.OverloadedError -> Icons.Rounded.CloudOff to error.message
-        is ClaudeApiError.NetworkError -> Icons.Rounded.WifiOff to error.message
-        is ClaudeApiError.RequestTooLarge -> Icons.Rounded.ContentCopy to error.message
+        is AnthropicApiError.AuthenticationError -> Icons.Rounded.Lock to error.message
+        is AnthropicApiError.RateLimitError -> Icons.Rounded.Timer to error.message
+        is AnthropicApiError.OverloadedError -> Icons.Rounded.CloudOff to error.message
+        is AnthropicApiError.NetworkError -> Icons.Rounded.WifiOff to error.message
+        is AnthropicApiError.RequestTooLarge -> Icons.Rounded.ContentCopy to error.message
         else -> Icons.Rounded.Error to (error.message ?: "")
     }
 
@@ -245,7 +245,7 @@ fun ScreenPreview() {
             )
         ),
         isLoading = false,
-        error = ClaudeApiError.InvalidRequest(message = "Shit went down"),
+        error = AnthropicApiError.InvalidRequest(message = "Shit went down"),
         sendMessage = {},
     )
 }

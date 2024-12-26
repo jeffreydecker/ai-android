@@ -10,15 +10,15 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ConversationDao {
-    @Query("SELECT * from conversations ORDER BY createdAt DESC")
+    @Query("SELECT * from Conversation ORDER BY createdAt DESC")
     fun getAllConversations(): Flow<List<ConversationEntity>>
 
     @Transaction
-    @Query("SELECT * FROM conversations ORDER BY createdAt DESC")
+    @Query("SELECT * FROM Conversation ORDER BY createdAt DESC")
     fun getAllConversationsWithMessages(): Flow<List<ConversationWithMessages>>
 
     @Transaction
-    @Query("SELECT * FROM conversations WHERE id = :conversationId")
+    @Query("SELECT * FROM Conversation WHERE id = :conversationId")
     fun getConversationWithMessages(conversationId: String): Flow<ConversationWithMessages?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -35,6 +35,6 @@ interface MessageDao {
 
     // I think with the DB structure this ends up unnecessary
     // unless I want to clear a conversation but still keep it
-    @Query("DELETE FROM messages WHERE conversationId = :conversationId")
+    @Query("DELETE FROM Message WHERE conversationId = :conversationId")
     suspend fun deleteMessagesByConversationId(conversationId: String)
 }

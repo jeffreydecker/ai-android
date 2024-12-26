@@ -10,7 +10,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 
-class ClaudeApiClient() {
+class AnthropicApiClient() {
     private val retrofit = Retrofit.Builder()
         .baseUrl(ANTHROPIC_BASE_URL)
         .addConverterFactory(GsonConverterFactory.create())
@@ -25,13 +25,13 @@ class ClaudeApiClient() {
             .build())
         .build()
 
-    private val api = retrofit.create(ClaudeApi::class.java)
+    private val api = retrofit.create(AnthropicApi::class.java)
 
     suspend fun sendMessage(
         apiKey: String,
         conversationHistory: List<ChatMessage>,
     ): String {
-        val request = ClaudeRequest(
+        val request = AnthropicRequest(
             messages = conversationHistory.map {
                 Message(it.role, it.content)
             }
@@ -39,7 +39,7 @@ class ClaudeApiClient() {
 
         return try {
             val response = api.sendMessage(apiKey, request = request)
-            response.content.firstOrNull()?.text ?: throw ClaudeApiError.UnknownError("Empty response")
+            response.content.firstOrNull()?.text ?: throw AnthropicApiError.UnknownError("Empty response")
         } catch (e: HttpException) {
             val errorBody = e.response()?.errorBody()?.string()
             val errorResponse = try {
@@ -47,11 +47,11 @@ class ClaudeApiClient() {
             } catch (e: Exception) {
                 null
             }
-            throw ClaudeApiError.errorForCode(e.code(), errorResponse)
+            throw AnthropicApiError.errorForCode(e.code(), errorResponse)
         } catch (e: IOException) {
-            throw ClaudeApiError.NetworkError("Network error: ${e.message}")
+            throw AnthropicApiError.NetworkError("Network error: ${e.message}")
         } catch (e: Exception) {
-            throw ClaudeApiError.UnknownError(e.message ?: "Unknown error occurred")
+            throw AnthropicApiError.UnknownError(e.message ?: "Unknown error occurred")
         }
     }
 }

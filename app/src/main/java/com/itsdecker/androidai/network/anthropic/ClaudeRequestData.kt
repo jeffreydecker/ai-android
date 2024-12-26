@@ -2,14 +2,14 @@ package com.itsdecker.androidai.network.anthropic
 
 import com.google.gson.annotations.SerializedName
 
-// Claude related request and response classes including
+// Anthropic related request and response classes including
 
 data class Message(
     val role: String,
     val content: String
 )
 
-data class ClaudeRequest(
+data class AnthropicRequest(
     val model: String = ANTHROPIC_CLAUDE_MODEL_DEFAULT, // TODO - Make this selectable
     @SerializedName(value = "max_tokens")
     val maxTokens: Int = ANTHROPIC_API_DEFAULT_MAX_TOKENS,
@@ -21,7 +21,7 @@ data class ContentItem(
     val type: String = ANTHROPIC_API_DEFAULT_CONTENT_TYPE
 )
 
-data class ClaudeResponse(
+data class AnthropicResponse(
     val content: List<ContentItem>,
     val role: String,
     val id: String
@@ -36,34 +36,34 @@ data class ErrorDetail(
     val message: String
 )
 
-sealed class ClaudeApiError : Exception() {
-    data class InvalidRequest(override val message: String) : ClaudeApiError()
+sealed class AnthropicApiError : Exception() {
+    data class InvalidRequest(override val message: String) : AnthropicApiError()
     data class AuthenticationError(override val message: String = "Invalid API key or authentication failed") :
-        ClaudeApiError()
+        AnthropicApiError()
 
     data class PermissionError(override val message: String = "Insufficient permissions for this resource") :
-        ClaudeApiError()
+        AnthropicApiError()
 
     data class NotFoundError(override val message: String = "Requested resource not found") :
-        ClaudeApiError()
+        AnthropicApiError()
 
     data class RequestTooLarge(override val message: String = "Request exceeds maximum allowed size") :
-        ClaudeApiError()
+        AnthropicApiError()
 
     data class RateLimitError(override val message: String = "Rate limit exceeded. Please try again later") :
-        ClaudeApiError()
+        AnthropicApiError()
 
     data class ApiError(override val message: String = "Anthropic API internal error") :
-        ClaudeApiError()
+        AnthropicApiError()
 
     data class OverloadedError(override val message: String = "API is temporarily overloaded. Please try again later") :
-        ClaudeApiError()
+        AnthropicApiError()
 
-    data class NetworkError(override val message: String) : ClaudeApiError()
-    data class UnknownError(override val message: String) : ClaudeApiError()
+    data class NetworkError(override val message: String) : AnthropicApiError()
+    data class UnknownError(override val message: String) : AnthropicApiError()
 
     companion object {
-        fun errorForCode(errorCode: Int, errorResponse: ErrorResponse?): ClaudeApiError =
+        fun errorForCode(errorCode: Int, errorResponse: ErrorResponse?): AnthropicApiError =
             when (errorCode) {
                 400 -> InvalidRequest(
                     errorResponse?.error?.message ?: "Invalid request format"
@@ -102,5 +102,4 @@ sealed class ClaudeApiError : Exception() {
                 )
             }
     }
-
 }

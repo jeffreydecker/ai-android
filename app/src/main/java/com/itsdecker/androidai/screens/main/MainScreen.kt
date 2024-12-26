@@ -32,7 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.itsdecker.androidai.R
 import com.itsdecker.androidai.data.SupportedProvider
-import com.itsdecker.androidai.database.ChatModelEntity
+import com.itsdecker.androidai.database.ApiKeyEntity
 import com.itsdecker.androidai.screens.shared.IconListItem
 import com.itsdecker.androidai.ui.theme.AndroidaiTheme
 import com.itsdecker.androidai.ui.theme.Typography
@@ -56,7 +56,7 @@ fun MainScreen(
 
 @Composable
 private fun MainWindow(
-    chatModels: List<ChatModelEntity>,
+    chatModels: List<ApiKeyEntity>,
     goToChat: (apiKeyId: String) -> Unit,
     goToAddModel: () -> Unit,
     clearTable: () -> Unit,
@@ -119,7 +119,7 @@ private fun MainWindow(
 
 @Composable
 fun ApiKeysList(
-    chatModels: List<ChatModelEntity>,
+    chatModels: List<ApiKeyEntity>,
     onItemClick: (apiKeyId: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -144,7 +144,7 @@ fun ApiKeysList(
 
 @Composable
 fun ApiKeyItem(
-    chatModel: ChatModelEntity,
+    chatModel: ApiKeyEntity,
     onClick: (apiKeyId: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -227,8 +227,8 @@ fun MainScreenPreview() {
     )
 }
 
-private fun getChatModelPreviewList(): List<ChatModelEntity> = listOf(
-    ChatModelEntity(
+private fun getChatModelPreviewList(): List<ApiKeyEntity> = listOf(
+    ApiKeyEntity(
         id = "",
         createdAt = System.currentTimeMillis(),
         name = "My Anthropic Key",

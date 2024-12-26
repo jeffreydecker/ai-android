@@ -1,6 +1,5 @@
 package com.itsdecker.androidai.navigation
 
-import com.itsdecker.androidai.database.ChatModelEntity
 import kotlinx.serialization.Serializable
 
 sealed class NavRoute {
