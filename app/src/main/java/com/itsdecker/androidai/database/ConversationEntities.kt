@@ -6,6 +6,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.Relation
+import java.util.UUID
 
 @Entity(
     tableName = "Conversation",
@@ -13,14 +14,15 @@ import androidx.room.Relation
         ForeignKey(
             entity = ApiKeyEntity::class,
             parentColumns = ["id"],
-            childColumns = ["chatModelId"],
+            childColumns = ["apiKeyId"],
             onDelete = ForeignKey.CASCADE
         )
-    ]
+    ],
+    indices = [Index("apiKeyId")]
 )
 data class ConversationEntity(
-    @PrimaryKey val id: String,
-    val chatModelId: String,
+    @PrimaryKey val id: String = UUID.randomUUID().toString(),
+    val apiKeyId: String,
     val createdAt: Long = System.currentTimeMillis(),
     val title: String? = null
 )
@@ -38,11 +40,21 @@ data class ConversationEntity(
     indices = [Index("conversationId")]
 )
 data class MessageEntity(
-    @PrimaryKey val id: String,
+    @PrimaryKey val id: String = UUID.randomUUID().toString(),
     val conversationId: String,
     val role: String,
     val content: String,
     val timestamp: Long = System.currentTimeMillis()
+)
+
+data class ConversationWithApiKey(
+    @Relation(
+        parentColumn = "apiKeyId",
+        entityColumn = "id"
+    )
+    val apiKey: ApiKeyEntity,
+    @Embedded
+    val conversation: ConversationEntity,
 )
 
 data class ConversationWithMessages(
@@ -51,5 +63,5 @@ data class ConversationWithMessages(
         parentColumn = "id",
         entityColumn = "conversationId"
     )
-    val messages: List<MessageEntity>
+    val messages: List<MessageEntity>,
 )

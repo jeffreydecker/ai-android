@@ -9,8 +9,8 @@ data class ChatMessage(
 )
 
 data class Conversation(
+    val id: String = UUID.randomUUID().toString(),
+    val title: String,
     val messages: List<ChatMessage>,
-    val id: String = UUID.randomUUID().toString()
+    val lastUpdated: Long = System.currentTimeMillis(),
 )
-
-// TODO - Add a role enum once we integrate with other LLM providers

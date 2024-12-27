@@ -4,8 +4,39 @@
     // Main Screen
     <string name="app_title">Android.AI</string>
     <string name="app_prompt">Add or select a model to get started</string>
+    <string name="add_key_button">Add API Key</string>
 
-    // Buttons
-    <string name="add_key_button">Add An API Key</string>
-    <string name="chat_now_button">Chat Now</string>
+    // Conversations Screen
+    <string name="new_chat_button">New Chat</string>
+
+    // Conversations General
+    <string name="untitled_conversation">Untitled Conversation</string>
+
+    // Time
+    <string name="time_just_now">Just now</string>
+    <plurals name="time_minutes">
+        <item quantity="one">%d minute ago</item>
+        <item quantity="other">%d minutes ago</item>
+    </plurals>
+    <plurals name="time_hours">
+        <item quantity="one">%d hour ago</item>
+        <item quantity="other">%d hours ago</item>
+    </plurals>
+    <plurals name="time_days">
+        <item quantity="one">%d day ago</item>
+        <item quantity="other">%d days ago</item>
+    </plurals>
+    <plurals name="time_weeks">
+        <item quantity="one">%d week ago</item>
+        <item quantity="other">%d weeks ago</item>
+    </plurals>
+    <plurals name="time_months">
+        <item quantity="one">%d month ago</item>
+        <item quantity="other">%d months ago</item>
+    </plurals>
+    <plurals name="time_years">
+        <item quantity="one">%d year ago</item>
+        <item quantity="other">%d years ago</item>
+    </plurals>
+
 </resources>

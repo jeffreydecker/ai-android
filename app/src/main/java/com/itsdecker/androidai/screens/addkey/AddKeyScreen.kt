@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.ButtonDefaults
@@ -26,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.itsdecker.androidai.data.ModelField
 import com.itsdecker.androidai.data.SupportedProvider
 import com.itsdecker.androidai.ui.theme.Typography
+import com.itsdecker.androidai.ui.theme.colorScheme
 import com.itsdecker.androidai.ui.theme.spacing
 
 const val WIDTH_FRACTION = 0.7f
@@ -33,7 +35,6 @@ const val WIDTH_FRACTION = 0.7f
 @Composable
 fun AddKeyScreen(
     viewModel: AddKeyViewModel,
-    modifier: Modifier,
 ) {
     val selectedProvider = viewModel.modelSelection.collectAsState()
     val currentField = viewModel.currentField.collectAsState()
@@ -48,7 +49,7 @@ fun AddKeyScreen(
         ProviderSelection(
             supportedProviders = viewModel.supportedProviders,
             onProviderSelected = { providerSelection -> viewModel.setProvider(providerSelection) },
-            modifier = modifier,
+            modifier = Modifier.fillMaxSize(),
         )
     } else if (currentField.value != null) {
         (currentField.value)?.let { formField ->
@@ -57,7 +58,7 @@ fun AddKeyScreen(
                 onTextValueChange = { textValue -> viewModel.updateTextValue(textValue) },
                 onGoBack = { viewModel.goBack() },
                 onFieldSubmit = { viewModel.submitCurrentField() },
-                modifier = modifier,
+                modifier = Modifier.fillMaxSize(),
             )
         }
 
@@ -65,7 +66,7 @@ fun AddKeyScreen(
         SubmissionStep(
             goBackClicked = { viewModel.goBack() },
             saveModelClicked = { viewModel.saveModel() },
-            modifier = modifier,
+            modifier = Modifier.fillMaxSize(),
         )
     }
 }
@@ -79,7 +80,7 @@ fun ProviderSelection(
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(
-            space = MaterialTheme.spacing.default,
+            space = spacing.default,
             alignment = Alignment.CenterVertically,
         ),
     ) {
@@ -98,7 +99,7 @@ fun ProviderSelection(
             style = Typography.bodySmall,
         )
 
-        Spacer(modifier = Modifier.height(MaterialTheme.spacing.medium))
+        Spacer(modifier = Modifier.height(spacing.medium))
 
         for(model in supportedProviders) {
             ProviderButton(
@@ -126,8 +127,8 @@ fun ProviderButton(
         modifier = modifier,
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
-            contentColor = MaterialTheme.colorScheme.onSurface,
+            containerColor = colorScheme.surfaceContainer,
+            contentColor = colorScheme.onSurface,
         ),
     ) {
         Icon(
@@ -155,7 +156,7 @@ fun SetFieldStep(
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(
-            MaterialTheme.spacing.default,
+            spacing.default,
             Alignment.CenterVertically,
         ),
     ) {
@@ -174,7 +175,7 @@ fun SetFieldStep(
             style = Typography.bodySmall
         )
 
-        Spacer(modifier = Modifier.height(MaterialTheme.spacing.medium))
+        Spacer(modifier = Modifier.height(spacing.medium))
 
         when (field) {
             is ModelField.Text -> {
@@ -202,7 +203,7 @@ fun TextFormField(
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.default),
+        verticalArrangement = Arrangement.spacedBy(spacing.default),
     ) {
         OutlinedTextField(
             value = value,
@@ -211,7 +212,7 @@ fun TextFormField(
         )
 
         Row(
-            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.default)
+            horizontalArrangement = Arrangement.spacedBy(spacing.default)
         ) {
             OutlinedButton(
                 onClick = onGoBack,
@@ -238,7 +239,7 @@ fun SubmissionStep(
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(
-            MaterialTheme.spacing.default,
+            spacing.default,
             Alignment.CenterVertically,
         ),
     ) {

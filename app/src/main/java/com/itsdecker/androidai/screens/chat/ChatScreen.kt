@@ -46,13 +46,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.itsdecker.androidai.database.ConversationEntity
+import com.itsdecker.androidai.database.ConversationWithMessages
+import com.itsdecker.androidai.database.MessageEntity
 import com.itsdecker.androidai.network.anthropic.ANTHROPIC_MESSENGER_ROLE_ASSISTANT
 import com.itsdecker.androidai.network.anthropic.ANTHROPIC_MESSENGER_ROLE_USER
 import com.itsdecker.androidai.network.anthropic.AnthropicApiError
+import com.itsdecker.androidai.ui.theme.colorScheme
 import com.itsdecker.androidai.ui.theme.spacing
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.UUID
 
 
 // Composable UI updated to show conversation history
@@ -63,15 +68,15 @@ fun ChatScreen(viewModel: ChatViewModel) {
     val error by viewModel.error.collectAsState()
 
     ChatWindow(
-        conversation,
-        isLoading,
-        error,
-    ) { viewModel.sendMessage(it) }
+        conversation = conversation,
+        isLoading = isLoading,
+        error = error,
+    ) { viewModel.sendMessage(message = it) }
 }
 
 @Composable
 fun ChatWindow(
-    conversation: Conversation,
+    conversation: ConversationWithMessages?,
     isLoading: Boolean,
     error: AnthropicApiError?,
     sendMessage: (String) -> Unit,
@@ -81,14 +86,13 @@ fun ChatWindow(
     //  fit within the chat window. This is pretty easy to do with a naive approach but might be fun
     //  to tackle as a more complex task.
     val chatListState = rememberLazyListState()
-    LaunchedEffect(conversation.messages) {
+    LaunchedEffect(conversation?.messages) {
         chatListState.animateScrollToItem(chatListState.layoutInfo.totalItemsCount)
     }
 
     Box(
         modifier = Modifier
-            .fillMaxSize()
-            .windowInsetsPadding(WindowInsets.statusBars),
+            .fillMaxSize(),
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -98,11 +102,11 @@ fun ChatWindow(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .padding(horizontal = MaterialTheme.spacing.medium)
+                    .padding(horizontal = spacing.medium)
                 ,
                 state = chatListState,
             ) {
-                items(conversation.messages) { message ->
+                items(conversation?.messages ?: listOf()) { message ->
                     ChatBubble(message)
                 }
             }
@@ -125,15 +129,14 @@ private fun ChatInput(
     Row(
         modifier = Modifier
             .background(
-                color = MaterialTheme.colorScheme.surfaceContainer,
+                color = colorScheme.surfaceContainer,
                 shape = RoundedCornerShape(
-                    topStart = MaterialTheme.spacing.medium,
-                    topEnd = MaterialTheme.spacing.medium,
+                    topStart = spacing.medium,
+                    topEnd = spacing.medium,
                 )
             )
-            .windowInsetsPadding(WindowInsets.navigationBars)
-            .padding(MaterialTheme.spacing.small),
-        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+            .padding(spacing.small),
+        horizontalArrangement = Arrangement.spacedBy(spacing.small),
     ) {
         TextField(
             value = prompt,
@@ -164,17 +167,17 @@ private fun ChatInput(
 }
 
 @Composable
-private fun ChatBubble(message: ChatMessage) {
+private fun ChatBubble(message: MessageEntity) {
     val isUser = message.role == ANTHROPIC_MESSENGER_ROLE_USER
     val backgroundColor = if (isUser)
-        MaterialTheme.colorScheme.primary
+        colorScheme.primary
     else
-        MaterialTheme.colorScheme.secondary
+        colorScheme.secondary
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = MaterialTheme.spacing.extraSmall),
+            .padding(vertical = spacing.extraSmall),
         horizontalAlignment = if (isUser) Alignment.End else Alignment.Start
     ) {
         Surface(
@@ -184,7 +187,7 @@ private fun ChatBubble(message: ChatMessage) {
         ) {
             Text(
                 text = message.content,
-                modifier = Modifier.padding(MaterialTheme.spacing.small),
+                modifier = Modifier.padding(spacing.small),
                 style = MaterialTheme.typography.bodyLarge
             )
         }
@@ -193,7 +196,7 @@ private fun ChatBubble(message: ChatMessage) {
             text = SimpleDateFormat("HH:mm", Locale.getDefault())
                 .format(Date(message.timestamp)),
             style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(horizontal = MaterialTheme.spacing.extraSmall)
+            modifier = Modifier.padding(horizontal = spacing.extraSmall)
         )
     }
 }
@@ -212,36 +215,53 @@ fun ErrorMessage(error: AnthropicApiError) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(MaterialTheme.spacing.small)
+            .padding(spacing.small)
             .background(
-                MaterialTheme.colorScheme.errorContainer,
-                RoundedCornerShape(MaterialTheme.spacing.small)
+                colorScheme.errorContainer,
+                RoundedCornerShape(spacing.small)
             )
-            .padding(MaterialTheme.spacing.medium),
+            .padding(spacing.medium),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.error
+            tint = colorScheme.error
         )
-        Spacer(modifier = Modifier.width(MaterialTheme.spacing.small))
+        Spacer(modifier = Modifier.width(spacing.small))
         Text(
             text = message,
-            color = MaterialTheme.colorScheme.onErrorContainer,
+            color = colorScheme.onErrorContainer,
             style = MaterialTheme.typography.bodyMedium
         )
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
+@Preview(showBackground = true)
 @Composable
 fun ScreenPreview() {
+    val conversationId = UUID.randomUUID().toString()
+
     ChatWindow(
-        conversation = Conversation(
+        conversation = ConversationWithMessages(
+            conversation = ConversationEntity(
+                id = conversationId,
+                title = "Test Conversation",
+                apiKeyId = UUID.randomUUID().toString(),
+            ),
             messages = listOf(
-                ChatMessage(ANTHROPIC_MESSENGER_ROLE_USER, "what did I say?"),
-                ChatMessage(ANTHROPIC_MESSENGER_ROLE_ASSISTANT, "this is the start of our conversation... you said nothing"),
+                MessageEntity(
+                    id = UUID.randomUUID().toString(),
+                    conversationId = conversationId,
+                    role = ANTHROPIC_MESSENGER_ROLE_USER,
+                    content = "what did I say?",
+                ),
+                MessageEntity(
+                    id = UUID.randomUUID().toString(),
+                    conversationId = conversationId,
+                    role = ANTHROPIC_MESSENGER_ROLE_ASSISTANT,
+                    content = "this is the start of our conversation... you said nothing",
+                ),
             )
         ),
         isLoading = false,

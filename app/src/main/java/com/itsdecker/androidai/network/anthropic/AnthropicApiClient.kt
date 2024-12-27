@@ -2,6 +2,7 @@ package com.itsdecker.androidai.network.anthropic
 
 import com.google.gson.Gson
 import com.itsdecker.androidai.BuildConfig
+import com.itsdecker.androidai.database.MessageEntity
 import com.itsdecker.androidai.screens.chat.ChatMessage
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -29,7 +30,7 @@ class AnthropicApiClient() {
 
     suspend fun sendMessage(
         apiKey: String,
-        conversationHistory: List<ChatMessage>,
+        conversationHistory: List<MessageEntity>,
     ): String {
         val request = AnthropicRequest(
             messages = conversationHistory.map {

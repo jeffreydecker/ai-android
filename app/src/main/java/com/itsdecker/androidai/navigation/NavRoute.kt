@@ -11,8 +11,13 @@ sealed class NavRoute {
     data object AddKey : NavRoute()
 
     @Serializable
+    data class Conversations(
+        val apiKeyId: String? = null,
+    ) : NavRoute()
+
+    @Serializable
     data class Chat(
         val apiKeyId: String,
-        val conversationId: String? = null,
+        val conversationId: String,
     ) : NavRoute()
 }

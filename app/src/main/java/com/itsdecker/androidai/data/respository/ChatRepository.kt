@@ -15,17 +15,22 @@ import javax.inject.Singleton
 class ChatRepository @Inject constructor(
     database: ChatDatabase,
 ) {
-    private val chatModelsDao = database.apiKeyDao()
+    private val apiKeyDao = database.apiKeyDao()
     private val conversationDao = database.conversationDao()
     private val messageDao = database.messageDao()
 
-    fun getChatModel(chatModelId: String) =
-        chatModelsDao.getChatModel(chatModelId = chatModelId)
+    fun getChatModel(apiKeyId: String) =
+        apiKeyDao.getChatModel(apiKeyId = apiKeyId)
 
-    fun getAllChatModels() = chatModelsDao.getAllChatModels()
+    fun getAllApiKeys() = apiKeyDao.getAllApiKeys()
 
-    fun getAllConversations(chatModelId: String) =
-        chatModelsDao.getAllChatModelConversations(chatModelId)
+    fun getLatestApiKey() = apiKeyDao.getLatestApiKey()
+
+    fun getAllConversations(apiKeyId: String?) =
+        when (apiKeyId) {
+            null -> conversationDao.getAllConversationsWithApiKey()
+            else -> conversationDao.getAllConversationsWithApiKey(apiKeyId)
+        }
 
     fun getConversation(id: String) = conversationDao.getConversationWithMessages(id)
 
@@ -42,38 +47,32 @@ class ChatRepository @Inject constructor(
             apiKey = apiKey,
             chatModel = supportedProvider,
         )
-        chatModelsDao.insertModel(chatModel)
+        apiKeyDao.insertModel(chatModel)
     }
 
     suspend fun deleteChatModels() = withContext(Dispatchers.IO) {
-        chatModelsDao.deleteChatModels()
+        apiKeyDao.deleteChatModels()
     }
 
-    suspend fun createConversation(chatModelId: String, title: String? = null): String  = withContext(Dispatchers.IO) {
+    suspend fun createConversation(apiKeyId: String, title: String? = null): String  = withContext(Dispatchers.IO) {
         val conversation = ConversationEntity(
             id = UUID.randomUUID().toString(),
-            chatModelId = chatModelId,
+            apiKeyId = apiKeyId,
             title = title,
         )
         conversationDao.insertConversation(conversation)
         conversation.id
     }
 
-    suspend fun addMessage(conversationId: String, role: String, content: String) {
-        val message = MessageEntity(
-            id = UUID.randomUUID().toString(),
-            conversationId = conversationId,
-            role = role,
-            content = content
-        )
+    suspend fun addMessage(message: MessageEntity) {
         messageDao.insertMessage(message)
     }
 
-    suspend fun deleteConversation(conversationId: String, chatModelId: String) {
+    suspend fun deleteConversation(conversationId: String, apiKeyId: String) {
         conversationDao.deleteConversation(
             ConversationEntity(
                 id = conversationId,
-                chatModelId = chatModelId
+                apiKeyId = apiKeyId
             )
         )
     }

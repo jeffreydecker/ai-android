@@ -21,28 +21,34 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.itsdecker.androidai.R
 import com.itsdecker.androidai.ui.theme.Typography
+import com.itsdecker.androidai.ui.theme.colorScheme
 import com.itsdecker.androidai.ui.theme.spacing
 
-@Preview
 @Composable
 fun IconListItem(
-    icon: Painter = painterResource(R.drawable.ic_ai_claude),
-    iconTint: Color = Color.Blue,
-    title: String = "Title of Item",
-    subTitle: String = "Some details about the item",
-    onClick: () -> Unit = {},
+    icon: Painter? = null,
+    iconTint: Color? = null,
+    title: String,
+    subTitle: String? = null,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(modifier = modifier.clickable { onClick() }) {
         Row(
-            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
+            horizontalArrangement = Arrangement.spacedBy(spacing.extraSmall),
         ) {
-            Icon(
-                painter = icon,
-                contentDescription = null,
-                tint = iconTint,
-                modifier = Modifier.size(40.dp).align(Alignment.CenterVertically)
-            )
+
+            icon?.let {
+                Icon(
+                    painter = icon,
+                    contentDescription = null,
+                    tint = iconTint ?: colorScheme.tertiary,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .align(Alignment.CenterVertically)
+                )
+            }
+
             TitleSubtitle(
                 title = title,
                 subTitle = subTitle,
@@ -55,29 +61,29 @@ fun IconListItem(
 }
 
 @Composable
-fun TitleSubtitleItem(
-    title: String = "Title of Item",
-    subTitle: String = "Some details about the item",
-    onClick: () -> Unit = {},
+fun TitleSubtitleListItem(
+    title: String,
+    subTitle: String? = null,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     TitleSubtitle(
         title = title,
         subTitle = subTitle,
         modifier = modifier
-            .padding(MaterialTheme.spacing.default)
+            .padding(spacing.default)
             .clickable { onClick() },
     )
 }
 
 @Composable
 private fun TitleSubtitle(
-    title: String = "Title of Item",
-    subTitle: String = "Some details about the item",
+    title: String,
+    subTitle: String?,
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier.padding(MaterialTheme.spacing.default),
+        modifier = modifier.padding(spacing.default),
     ) {
         Text(
             text = title,
@@ -85,11 +91,44 @@ private fun TitleSubtitle(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
-        Text(
-            text = subTitle,
-            style = Typography.bodySmall,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
+
+        subTitle?.let {
+            Text(
+                text = subTitle,
+                style = Typography.bodySmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun IconListItemPreview() {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        IconListItem(
+            icon = painterResource(R.drawable.ic_ai_claude),
+            iconTint = Color.Blue,
+            title = "Title of Item",
+            subTitle = "Some details about the item",
+            onClick = {},
+            modifier = Modifier,
+        )
+
+        IconListItem(
+            title = "Title of Item",
+            subTitle = "Some details about the item",
+            onClick = {},
+            modifier = Modifier,
+        )
+
+        IconListItem(
+            title = "Title of Item",
+            onClick = {},
+            modifier = Modifier,
         )
     }
 }

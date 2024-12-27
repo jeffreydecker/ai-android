@@ -1,25 +1,26 @@
 [versions]
-agp = "8.7.3"
-kotlin = "2.1.0"
-coreKtx = "1.15.0"
-junit = "4.13.2"
-junitVersion = "1.2.1"
-espressoCore = "3.6.1"
-lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.9.3"
-composeBom = "2024.12.01"
-navigationCompose = "2.8.5"
-materialIcons = "1.7.6"
-serialization = "2.0.21"
-serializationJson = "1.7.3"
+agp = "8.7.3"
 appcompat = "1.7.0"
-retrofit = "2.9.0"
-okhttp = "4.12.0"
-room = "2.6.1"
-ksp = "2.1.0-1.0.29"
+composeBom = "2024.12.01"
+coreKtx = "1.15.0"
+dataStore = "1.1.1"
+espressoCore = "3.6.1"
 hilt = "2.53"
 hiltNavigation = "1.2.0"
+junit = "4.13.2"
+junitVersion = "1.2.1"
+kotlin = "2.1.0"
+ksp = "2.1.0-1.0.29"
+lifecycleRuntimeKtx = "2.8.7"
 material = "1.12.0"
+materialIcons = "1.7.6"
+navigationCompose = "2.8.5"
+okhttp = "4.12.0"
+retrofit = "2.9.0"
+room = "2.6.1"
+serialization = "2.0.21"
+serializationJson = "1.7.3"
 
 [libraries]
 # Core Dependencies
@@ -51,6 +52,8 @@ androidx-room-compiler = { group = "androidx.room", name = "room-compiler", vers
 hilt = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
 hilt-navigation = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigation" }
+# Data Store
+androidx-datastore-prefs = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "dataStore" }
 #Testing
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

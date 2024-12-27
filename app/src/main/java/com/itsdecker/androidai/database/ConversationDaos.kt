@@ -10,8 +10,14 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ConversationDao {
-    @Query("SELECT * from Conversation ORDER BY createdAt DESC")
-    fun getAllConversations(): Flow<List<ConversationEntity>>
+
+    @Transaction
+    @Query("SELECT * FROM Conversation ORDER BY createdAt DESC")
+    fun getAllConversationsWithApiKey(): Flow<List<ConversationWithApiKey>>
+
+    @Transaction
+    @Query("SELECT * FROM Conversation WHERE apiKeyId = :apiKeyId ORDER BY createdAt DESC")
+    fun getAllConversationsWithApiKey(apiKeyId: String): Flow<List<ConversationWithApiKey>>
 
     @Transaction
     @Query("SELECT * FROM Conversation ORDER BY createdAt DESC")

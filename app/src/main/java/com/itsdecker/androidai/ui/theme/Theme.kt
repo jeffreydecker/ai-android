@@ -2,6 +2,7 @@ package com.itsdecker.androidai.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -36,11 +37,22 @@ private val LightColorScheme = lightColorScheme(
 )
 
 val LocalSpacing = compositionLocalOf { Spacing() }
+val LocalCornerRadius = compositionLocalOf { CornerRadius() }
 
-val MaterialTheme.spacing: Spacing
+val spacing: Spacing
     @Composable
     @ReadOnlyComposable
     get() = LocalSpacing.current
+
+val cornerRadius: CornerRadius
+    @Composable
+    @ReadOnlyComposable
+    get() = LocalCornerRadius.current
+
+val colorScheme: ColorScheme
+    @Composable
+    @ReadOnlyComposable
+    get() = MaterialTheme.colorScheme
 
 @Composable
 fun AndroidaiTheme(
@@ -59,9 +71,9 @@ fun AndroidaiTheme(
         else -> LightColorScheme
     }
 
-
     CompositionLocalProvider(
         LocalSpacing provides Spacing(),
+        LocalCornerRadius provides CornerRadius(),
     ) {
         MaterialTheme(
             colorScheme = colorScheme,
@@ -69,6 +81,4 @@ fun AndroidaiTheme(
             content = content
         )
     }
-
-
 }

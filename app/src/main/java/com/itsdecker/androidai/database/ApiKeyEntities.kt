@@ -5,22 +5,23 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.Relation
 import com.itsdecker.androidai.data.SupportedProvider
+import java.util.UUID
 
 @Entity(tableName = "ApiKey")
 data class ApiKeyEntity(
-    @PrimaryKey val id: String,
+    @PrimaryKey val id: String = UUID.randomUUID().toString(),
     val createdAt: Long = System.currentTimeMillis(),
     val name: String,
     val description: String,
     val apiKey: String,
-    val chatModel: SupportedProvider,
+    val chatModel: SupportedProvider, // TODO - Rename me
 )
 
-data class ApiKeyWithConversation(
-    @Embedded val model: ApiKeyEntity,
+data class ApiKeyWithConversations(
+    @Embedded val apiKey: ApiKeyEntity,
     @Relation(
         parentColumn = "id",
-        entityColumn = "chatModelId"
+        entityColumn = "apiKeyId"
     )
     val conversations: List<ConversationEntity>
 )

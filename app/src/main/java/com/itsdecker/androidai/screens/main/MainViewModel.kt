@@ -10,7 +10,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,19 +18,13 @@ class MainViewModel @Inject constructor(
     private val chatRepository: ChatRepository,
 ) : ViewModel() {
 
-    val chatModels: StateFlow<List<ApiKeyEntity>> = chatRepository.getAllChatModels()
+    val chatModels: StateFlow<List<ApiKeyEntity>> = chatRepository.getAllApiKeys()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
 
-    fun clearTable() {
-        viewModelScope.launch {
-            chatRepository.deleteChatModels()
-        }
-    }
-
-    fun goToChat(apiKeyId: String) = navigator.navigateTo(NavRoute.Chat(apiKeyId = apiKeyId))
+    fun goToChat(apiKeyId: String) = navigator.navigateTo(NavRoute.Conversations(apiKeyId = apiKeyId))
     fun goToAddModel() = navigator.navigateTo(NavRoute.AddKey)
 }
