@@ -46,9 +46,9 @@ class ConversationsViewModel @Inject constructor(
         apiKeyId?.let {
             chatRepository.createConversation(
                 apiKeyId = it,
-            ).let { conversationId ->
+            ).let { conversation ->
                 goToConversation(
-                    conversationId = conversationId,
+                    conversationId = conversation.conversation.id,
                     apiKeyId = apiKeyId,
                 )
             }

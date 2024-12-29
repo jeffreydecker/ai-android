@@ -17,7 +17,7 @@ interface ApiKeyDao {
     fun getAllApiKeys(): Flow<List<ApiKeyEntity>>
 
     @Query("SELECT * FROM ApiKey WHERE id = :apiKeyId")
-    fun getChatModel(apiKeyId: String): ApiKeyEntity
+    fun getChatModel(apiKeyId: String?): ApiKeyEntity?
 
     @Transaction
     @Query("SELECT * from ApiKey ORDER BY createdAt DESC")

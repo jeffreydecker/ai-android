@@ -25,7 +25,7 @@ interface ConversationDao {
 
     @Transaction
     @Query("SELECT * FROM Conversation WHERE id = :conversationId")
-    fun getConversationWithMessages(conversationId: String): Flow<ConversationWithMessages?>
+    fun getConversationWithMessages(conversationId: String?): ConversationWithMessages?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertConversation(conversation: ConversationEntity)

@@ -5,10 +5,10 @@ import kotlinx.serialization.Serializable
 sealed class NavRoute {
 
     @Serializable
-    data object Main : NavRoute()
-
-    @Serializable
-    data object AddKey : NavRoute()
+    data class Chat(
+        val apiKeyId: String?,
+        val conversationId: String?,
+    ) : NavRoute()
 
     @Serializable
     data class Conversations(
@@ -16,8 +16,9 @@ sealed class NavRoute {
     ) : NavRoute()
 
     @Serializable
-    data class Chat(
-        val apiKeyId: String,
-        val conversationId: String,
-    ) : NavRoute()
+    data object ApiKeys : NavRoute()
+
+    @Serializable
+    data object AddKey : NavRoute()
+
 }

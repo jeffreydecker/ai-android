@@ -1,8 +1,8 @@
 package com.itsdecker.androidai.screens.main
 
-import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -11,53 +11,64 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material.icons.rounded.StarOutline
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ListItemColors
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import com.itsdecker.androidai.R
-import com.itsdecker.androidai.data.SupportedProvider
 import com.itsdecker.androidai.database.ApiKeyEntity
+import com.itsdecker.androidai.screens.preview.ThemePreviews
+import com.itsdecker.androidai.screens.preview.apiKeyPreviewList
 import com.itsdecker.androidai.ui.theme.AndroidaiTheme
 import com.itsdecker.androidai.ui.theme.colorScheme
 import com.itsdecker.androidai.ui.theme.spacing
 
 @Composable
-fun MainScreen(
-    viewModel: MainViewModel,
+fun ApiKeysScreen(
+    viewModel: ApiKeysViewModel,
 ) {
-    val apiKeys by viewModel.chatModels.collectAsState()
+    val apiKeys by viewModel.apiKeys.collectAsState()
+    val defaultKeyId by viewModel.defaultApiKeyId.collectAsState()
 
-    MainWindow(
+    ApiKeysWindow(
         apiKeys = apiKeys,
+        defaultKeyId = defaultKeyId,
         onApiKeyClicked = viewModel::goToChat,
         onAddApiKeyClicked = viewModel::goToAddModel,
     )
 }
 
 @Composable
-private fun MainWindow(
+fun ApiKeysWindow(
     apiKeys: List<ApiKeyEntity>,
+    defaultKeyId: String? = null,
+    selectedKeyId: String? = null,
     onApiKeyClicked: (apiKeyId: String) -> Unit,
     onAddApiKeyClicked: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     AndroidaiTheme {
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = modifier.fillMaxSize()) {
             ApiKeysList(
-                apiKeys = apiKeys,
-                onItemClick = onApiKeyClicked,
                 modifier = Modifier
                     .fillMaxSize()
                     .background(color = colorScheme.surface),
+                apiKeys = apiKeys,
+                defaultKeyId = defaultKeyId,
+                selectedKeyId = selectedKeyId,
+                onItemClick = onApiKeyClicked,
             )
 
             AddApiKeyButton(
@@ -72,9 +83,11 @@ private fun MainWindow(
 
 @Composable
 fun ApiKeysList(
-    apiKeys: List<ApiKeyEntity>,
-    onItemClick: (apiKeyId: String) -> Unit,
     modifier: Modifier = Modifier,
+    apiKeys: List<ApiKeyEntity>,
+    defaultKeyId: String? = null,
+    selectedKeyId: String? = null,
+    onItemClick: (apiKeyId: String) -> Unit,
 ) {
     LazyColumn(
         modifier = modifier,
@@ -82,6 +95,8 @@ fun ApiKeysList(
         items(items = apiKeys) { apiKey ->
             ApiKeyItem(
                 apiKey = apiKey,
+                isDefault = apiKey.id == defaultKeyId,
+                isSelected = apiKey.id == selectedKeyId,
                 onClick = onItemClick,
             )
         }
@@ -91,9 +106,16 @@ fun ApiKeysList(
 @Composable
 fun ApiKeyItem(
     apiKey: ApiKeyEntity,
+    isDefault: Boolean,
+    isSelected: Boolean,
     onClick: (apiKeyId: String) -> Unit,
 ) {
     ListItem(
+        overlineContent = {
+            if (isDefault) {
+                Text(text = "Default")
+            }
+        },
         headlineContent = { Text(text = apiKey.name) },
         supportingContent = { Text(text = apiKey.description) },
         leadingContent = {
@@ -103,7 +125,19 @@ fun ApiKeyItem(
                 tint = apiKey.chatModel.brandColor,
             )
         },
-        modifier = Modifier.clickable { onClick(apiKey.id) }
+        trailingContent = {
+            if (isDefault) {
+                Icon(
+                    imageVector = Icons.Rounded.Star,
+                    contentDescription = null,
+                )
+            }
+        },
+        colors = when (isSelected) {
+            true -> getSelectedItemColors()
+            false -> getItemColors()
+        },
+        modifier = Modifier.clickable { onClick(apiKey.id) }.focusable(true),
     )
 }
 
@@ -129,35 +163,26 @@ fun AddApiKeyButton(
     )
 }
 
-@Preview(showBackground = true)
 @Composable
-fun ModelItemPreview() {
-    ApiKeyItem(
-        apiKey = getChatModelPreviewList().first(),
-        onClick = {},
+private fun getSelectedItemColors(): ListItemColors =
+    ListItemDefaults.colors(
+        containerColor = colorScheme.surfaceContainerLow,
+    )
+
+@Composable
+private fun getItemColors(): ListItemColors =
+    ListItemDefaults.colors(
+        containerColor = Color.Transparent,
+    )
+
+@ThemePreviews
+@Composable
+private fun MainScreenPreview() {
+    ApiKeysWindow(
+        apiKeys = apiKeyPreviewList(),
+        defaultKeyId = "2",
+        selectedKeyId = "1",
+        onApiKeyClicked = {},
+        onAddApiKeyClicked = {},
     )
 }
-
-@Preview(
-    showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-)
-@Composable
-fun MainScreenPreview() {
-    MainWindow(
-        getChatModelPreviewList(),
-        {},
-        {},
-    )
-}
-
-private fun getChatModelPreviewList(): List<ApiKeyEntity> = listOf(
-    ApiKeyEntity(
-        id = "",
-        createdAt = System.currentTimeMillis(),
-        name = "My Anthropic Key",
-        description = "This is my general purpose Anthropic key",
-        apiKey = "",
-        chatModel = SupportedProvider.Anthropic,
-    )
-)

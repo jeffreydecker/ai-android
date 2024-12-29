@@ -1,16 +1,19 @@
 <resources>
     <string name="app_name">androidai</string>
 
-    // Main Screen
+    // App
     <string name="app_title">Android.AI</string>
     <string name="app_prompt">Add or select a model to get started</string>
+
+    // Keys
     <string name="add_key_button">Add API Key</string>
+    <string name="key_settings_button">Key Settings</string>
+    <string name="default_key">Default</string>
 
-    // Conversations Screen
-    <string name="new_chat_button">New Chat</string>
-
-    // Conversations General
+    // Conversations
     <string name="untitled_conversation">Untitled Conversation</string>
+    <string name="new_chat_button">New Chat</string>
+    <string name="new_chat_title">New Chat</string>
 
     // Time
     <string name="time_just_now">Just now</string>
