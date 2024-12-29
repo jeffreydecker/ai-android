@@ -20,20 +20,7 @@ class ChatRepository @Inject constructor(
     private val conversationDao = database.conversationDao()
     private val messageDao = database.messageDao()
 
-    fun getApiKey(apiKeyId: String?) =
-        apiKeyDao.getChatModel(apiKeyId = apiKeyId)
-
-    fun getAllApiKeys() = apiKeyDao.getAllApiKeys()
-
-    fun getLatestApiKey() = apiKeyDao.getLatestApiKey()
-
-    fun getAllConversations(apiKeyId: String?) =
-        when (apiKeyId) {
-            null -> conversationDao.getAllConversationsWithApiKey()
-            else -> conversationDao.getAllConversationsWithApiKey(apiKeyId)
-        }
-
-    fun getConversation(conversationId: String?) = conversationDao.getConversationWithMessages(conversationId)
+    // API Keys
 
     suspend fun createApiKey(
         name: String,
@@ -51,9 +38,18 @@ class ChatRepository @Inject constructor(
         apiKeyDao.insertModel(chatModel)
     }
 
-    suspend fun deleteChatModels() = withContext(Dispatchers.IO) {
-        apiKeyDao.deleteChatModels()
+    fun getAllApiKeys() = apiKeyDao.getAllApiKeys()
+
+    fun getApiKey(apiKeyId: String?) =
+        apiKeyDao.getApiKey(apiKeyId = apiKeyId)
+
+    fun getLatestApiKey() = apiKeyDao.getLatestApiKey()
+
+    suspend fun deleteApiKeys() = withContext(Dispatchers.IO) {
+        apiKeyDao.deleteApiKeys()
     }
+
+    // Conversations
 
     suspend fun createConversation(
         apiKeyId: String,
@@ -71,8 +67,17 @@ class ChatRepository @Inject constructor(
         )
     }
 
-    suspend fun addMessage(message: MessageEntity) = withContext(Dispatchers.IO) {
-        messageDao.insertMessage(message)
+    fun getAllConversations(apiKeyId: String?) =
+        when (apiKeyId) {
+            null -> conversationDao.getAllConversationsWithApiKey()
+            else -> conversationDao.getAllConversationsWithApiKey(apiKeyId)
+        }
+
+    fun getConversation(conversationId: String?) =
+        conversationDao.getConversationWithMessages(conversationId)
+
+    suspend fun updateConversation(conversation: ConversationEntity) = withContext(Dispatchers.IO) {
+        conversationDao.updateConversation(conversation)
     }
 
     suspend fun deleteConversation(
@@ -85,5 +90,11 @@ class ChatRepository @Inject constructor(
                 apiKeyId = apiKeyId
             )
         )
+    }
+
+    // Messages
+
+    suspend fun addMessage(message: MessageEntity) = withContext(Dispatchers.IO) {
+        messageDao.insertMessage(message)
     }
 }

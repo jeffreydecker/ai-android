@@ -23,8 +23,9 @@ import java.util.UUID
 data class ConversationEntity(
     @PrimaryKey val id: String = UUID.randomUUID().toString(),
     val apiKeyId: String,
+    val title: String? = null,
     val createdAt: Long = System.currentTimeMillis(),
-    val title: String? = null
+    val updatedAt: Long = System.currentTimeMillis(),
 )
 
 @Entity(

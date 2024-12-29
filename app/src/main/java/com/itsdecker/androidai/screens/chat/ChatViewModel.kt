@@ -15,6 +15,7 @@ import com.itsdecker.androidai.network.anthropic.ANTHROPIC_MESSENGER_ROLE_ASSIST
 import com.itsdecker.androidai.network.anthropic.ANTHROPIC_MESSENGER_ROLE_USER
 import com.itsdecker.androidai.network.anthropic.AnthropicApiClient
 import com.itsdecker.androidai.network.anthropic.AnthropicApiError
+import com.itsdecker.androidai.screens.preview.chatMessagesPreviewList
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,6 +40,7 @@ class ChatViewModel @Inject constructor(
     private val _selectedApiKey = MutableStateFlow<ApiKeyEntity?>(null)
     val selectedApiKey = _selectedApiKey.asStateFlow()
 
+    // TODO - Use this for better UX
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
 
@@ -128,13 +130,18 @@ class ChatViewModel @Inject constructor(
     // Update local instance and database with new message
     private fun updateConversation(message: MessageEntity) {
         _conversation.value?.let { conversation ->
-            // Update local instance
-            _conversation.value = conversation.copy(
+            val updatedConversation = conversation.copy(
+                conversation = conversation.conversation.copy(updatedAt = message.timestamp),
                 messages = conversation.messages.toMutableList().apply { add(message) }
             )
+
+            // Update local instance
+            _conversation.value = updatedConversation
+
             // Update database
             viewModelScope.launch {
                 chatRepository.addMessage(message = message)
+                chatRepository.updateConversation(updatedConversation.conversation)
             }
         }
     }

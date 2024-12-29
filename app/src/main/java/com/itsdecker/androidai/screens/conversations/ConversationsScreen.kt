@@ -105,7 +105,7 @@ fun ConversationItem(
         supportingContent = {
             Text(
                 text = TimeAgoFormatter.format(
-                    epochMillis = conversation.conversation.createdAt,
+                    epochMillis = conversation.conversation.updatedAt,
                     context = LocalContext.current,
                 )
             )

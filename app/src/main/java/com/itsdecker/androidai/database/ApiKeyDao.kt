@@ -17,22 +17,14 @@ interface ApiKeyDao {
     fun getAllApiKeys(): Flow<List<ApiKeyEntity>>
 
     @Query("SELECT * FROM ApiKey WHERE id = :apiKeyId")
-    fun getChatModel(apiKeyId: String?): ApiKeyEntity?
-
-    @Transaction
-    @Query("SELECT * from ApiKey ORDER BY createdAt DESC")
-    fun getAllConversations(): Flow<List<ApiKeyWithConversations>>
-
-    @Transaction
-    @Query("SELECT * FROM ApiKey WHERE id = :apiKeyId")
-    fun getAllChatModelConversations(apiKeyId: String): Flow<List<ApiKeyWithConversations>>
+    fun getApiKey(apiKeyId: String?): ApiKeyEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertModel(apiKeyEntity: ApiKeyEntity)
 
     @Delete
-    fun deleteChatModel(apiKeyEntity: ApiKeyEntity)
+    fun deleteApiKey(apiKeyEntity: ApiKeyEntity)
 
     @Query("DELETE FROM ApiKey")
-    fun deleteChatModels()
+    fun deleteApiKeys()
 }
