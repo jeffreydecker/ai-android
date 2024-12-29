@@ -5,11 +5,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -47,10 +49,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.itsdecker.androidai.R
 import com.itsdecker.androidai.database.ApiKeyEntity
@@ -115,29 +119,40 @@ fun ChatWindow(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = colorScheme.surface),
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
-        ) {
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = colorScheme.surface),
+            ) {
             ChatHeader(
                 chatTitle = conversation?.conversation?.title,
+                apiKeyName = selectedApiKey?.name,
                 onChatsClicked = onChatsClicked,
             )
 
-            ChatContent(
-                modifier = Modifier
+            Box(
+                Modifier
                     .weight(1f)
-                    .fillMaxWidth()
-                    .padding(horizontal = spacing.medium),
-                conversation = conversation,
-                apiKeys = apiKeys,
-                defaultApiKeyId = defaultApiKeyId,
-                selectedApiKey = selectedApiKey,
-                onApiKeyClicked = onApiKeyClicked,
-                onAddApiKeyClicked = onAddApiKeyClicked,
-                onApiKeySettingsClicked = onApiKeySettingsClicked,
-            )
+                    .fillMaxWidth(),
+            ) {
+                ChatContent(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    conversation = conversation,
+                    apiKeys = apiKeys,
+                    defaultApiKeyId = defaultApiKeyId,
+                    selectedApiKey = selectedApiKey,
+                    onApiKeyClicked = onApiKeyClicked,
+                    onAddApiKeyClicked = onAddApiKeyClicked,
+                    onApiKeySettingsClicked = onApiKeySettingsClicked,
+                )
+
+                TopToBottomGradient(
+                    height = spacing.medium,
+                    color = colorScheme.surface,
+                )
+            }
 
             error?.let { errorMessage -> ErrorMessage(errorMessage) }
 
@@ -149,13 +164,15 @@ fun ChatWindow(
 @Composable
 fun ChatHeader(
     chatTitle: String?,
+    apiKeyName: String?,
     onChatsClicked: () -> Unit,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(color = colorScheme.surface)
-            .padding(all = spacing.small),
+            .padding(all = spacing.small)
+            .padding(end = spacing.large),
         horizontalArrangement = Arrangement.spacedBy(spacing.medium),
     ) {
         IconButton(
@@ -168,14 +185,32 @@ fun ChatHeader(
             )
         }
 
-        Text(
-            text = chatTitle ?: stringResource(R.string.new_chat_title),
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.SemiBold,
-            color = colorScheme.onSurface,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.align(Alignment.CenterVertically)
-        )
+        Column(
+            modifier = Modifier
+                .align(Alignment.CenterVertically)
+                .padding(end = spacing.small),
+        ) {
+            Text(
+                text = chatTitle ?: stringResource(R.string.new_chat_title),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+
+            apiKeyName?.let {
+                Text(
+                    text = apiKeyName,
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+
     }
 }
 
@@ -205,6 +240,7 @@ fun ChatContent(
         if (conversation?.messages?.isNotEmpty() == true) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(all = spacing.medium),
                 state = chatListState,
             ) {
                 items(conversation.messages) { message ->
@@ -356,10 +392,10 @@ private fun ChatInput(
 @Composable
 private fun ChatBubble(message: MessageEntity) {
     val isUser = message.role == ANTHROPIC_MESSENGER_ROLE_USER
-    val backgroundColor = if (isUser)
-        colorScheme.primary
-    else
-        colorScheme.secondary
+    val (backgroundColor, itemPadding) = when (isUser) {
+        true -> colorScheme.surfaceContainerHigh to spacing.small
+        false -> colorScheme.surface to spacing.none
+    }
 
     Column(
         modifier = Modifier
@@ -367,10 +403,19 @@ private fun ChatBubble(message: MessageEntity) {
             .padding(vertical = spacing.extraSmall),
         horizontalAlignment = if (isUser) Alignment.End else Alignment.Start
     ) {
+        if (isUser) {
+            Text(
+                text = stringResource(R.string.user_label),
+                style = MaterialTheme.typography.bodySmall,
+                color = colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = spacing.small)
+            )
+        }
+
         BoxWithConstraints {
             Surface(
                 color = backgroundColor,
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(itemPadding),
                 modifier = Modifier.widthIn(
                     min = 0.dp,
                     max = if (isUser) maxWidth * 0.7f else maxWidth,
@@ -378,18 +423,11 @@ private fun ChatBubble(message: MessageEntity) {
             ) {
                 Text(
                     text = message.content,
-                    modifier = Modifier.padding(spacing.small),
+                    modifier = Modifier.padding(itemPadding),
                     style = MaterialTheme.typography.bodyLarge
                 )
             }
         }
-
-        Text(
-            text = SimpleDateFormat("HH:mm", Locale.getDefault())
-                .format(Date(message.timestamp)),
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(horizontal = spacing.extraSmall)
-        )
     }
 }
 
@@ -429,6 +467,30 @@ fun ErrorMessage(error: AnthropicApiError) {
             style = MaterialTheme.typography.bodyMedium
         )
     }
+}
+
+@Composable
+fun TopToBottomGradient(
+    height: Dp,
+    color: Color,
+) {
+    val gradientColors = listOf(
+        color,
+        Color.Transparent,
+    )
+
+    val gradientBrush = Brush.verticalGradient(
+        colors = gradientColors,
+        startY = 0f,
+        endY = Float.POSITIVE_INFINITY,
+    )
+
+    Box(
+        modifier = Modifier
+            .background(brush = gradientBrush)
+            .fillMaxWidth()
+            .height(height = height),
+    )
 }
 
 @ThemePreviews

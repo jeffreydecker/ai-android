@@ -14,6 +14,7 @@
     <string name="untitled_conversation">Untitled Conversation</string>
     <string name="new_chat_button">New Chat</string>
     <string name="new_chat_title">New Chat</string>
+    <string name="user_label">You</string>
 
     // Time
     <string name="time_just_now">Just now</string>
