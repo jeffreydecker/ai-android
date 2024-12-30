@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.itsdecker.androidai.data.respository.ApiRepository
 import com.itsdecker.androidai.data.respository.ChatRepository
 import com.itsdecker.androidai.data.respository.SettingsRepository
 import com.itsdecker.androidai.database.ApiKeyEntity
@@ -11,11 +12,8 @@ import com.itsdecker.androidai.database.ConversationWithMessages
 import com.itsdecker.androidai.database.MessageEntity
 import com.itsdecker.androidai.navigation.NavRoute
 import com.itsdecker.androidai.navigation.Navigator
-import com.itsdecker.androidai.network.anthropic.ANTHROPIC_MESSENGER_ROLE_ASSISTANT
-import com.itsdecker.androidai.network.anthropic.ANTHROPIC_MESSENGER_ROLE_USER
-import com.itsdecker.androidai.network.anthropic.AnthropicApiClient
-import com.itsdecker.androidai.network.anthropic.AnthropicApiError
-import com.itsdecker.androidai.screens.preview.chatMessagesPreviewList
+import com.itsdecker.androidai.network.ChatApiError
+import com.itsdecker.androidai.network.ChatRole
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,7 +23,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
-    private val apiClient: AnthropicApiClient,
+    private val apiRepository: ApiRepository,
     private val chatRepository: ChatRepository,
     private val navigator: Navigator,
     savedStateHandle: SavedStateHandle,
@@ -44,7 +42,7 @@ class ChatViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
 
-    private val _error = MutableStateFlow<AnthropicApiError?>(null)
+    private val _error = MutableStateFlow<ChatApiError?>(null)
     val error = _error.asStateFlow()
 
     init {
@@ -95,30 +93,25 @@ class ChatViewModel @Inject constructor(
 
                 try {
                     val userMessage = MessageEntity(
-                        role = ANTHROPIC_MESSENGER_ROLE_USER,
+                        role = ChatRole.User.value,
                         content = message,
                         conversationId = conversation.conversation.id,
                     )
 
                     updateConversation(message = userMessage)
 
-                    val assistantResult = apiClient.sendMessage(
-                        apiKey = apiKey.apiKey,
+                    val assistantResult = apiRepository.sendMessage(
+                        apiKey = apiKey,
+                        conversationId = conversation.conversation.id,
                         conversationHistory = conversation.messages
                             .toMutableList()
                             .apply {
                                 add(userMessage)
                             },
-                    ).let {
-                        MessageEntity(
-                            role = ANTHROPIC_MESSENGER_ROLE_ASSISTANT,
-                            content = it,
-                            conversationId = conversation.conversation.id,
-                        )
-                    }
+                    )
 
                     updateConversation(message = assistantResult)
-                } catch (e: AnthropicApiError) {
+                } catch (e: ChatApiError) {
                     _error.value = e
                 } finally {
                     _isLoading.value = false
@@ -128,6 +121,7 @@ class ChatViewModel @Inject constructor(
     }
 
     // Update local instance and database with new message
+    // TODO - Maybe move this to ApiRepository?
     private fun updateConversation(message: MessageEntity) {
         _conversation.value?.let { conversation ->
             val updatedConversation = conversation.copy(

@@ -27,8 +27,4 @@ class ApplicationModule {
         )
             .addMigrations(MIGRATION_2_3)
             .build()
-
-    @Provides
-    @Singleton
-    fun provideAnthropicApi() = AnthropicApiClient()
 }

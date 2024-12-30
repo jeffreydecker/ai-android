@@ -60,8 +60,8 @@ import com.itsdecker.androidai.R
 import com.itsdecker.androidai.database.ApiKeyEntity
 import com.itsdecker.androidai.database.ConversationWithMessages
 import com.itsdecker.androidai.database.MessageEntity
+import com.itsdecker.androidai.network.ChatApiError
 import com.itsdecker.androidai.network.anthropic.ANTHROPIC_MESSENGER_ROLE_USER
-import com.itsdecker.androidai.network.anthropic.AnthropicApiError
 import com.itsdecker.androidai.screens.main.ApiKeysList
 import com.itsdecker.androidai.screens.main.ApiKeysViewModel
 import com.itsdecker.androidai.screens.preview.ThemePreviews
@@ -71,9 +71,6 @@ import com.itsdecker.androidai.ui.theme.AndroidaiTheme
 import com.itsdecker.androidai.ui.theme.colorScheme
 import com.itsdecker.androidai.ui.theme.cornerRadius
 import com.itsdecker.androidai.ui.theme.spacing
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @Composable
 fun ChatScreen(
@@ -109,7 +106,7 @@ fun ChatWindow(
     defaultApiKeyId: String?,
     selectedApiKey: ApiKeyEntity?,
     isLoading: Boolean,
-    error: AnthropicApiError?,
+    error: ChatApiError?,
     onSendMessage: (message: String) -> Unit,
     onChatsClicked: () -> Unit,
     onApiKeyClicked: (apiKey: ApiKeyEntity) -> Unit,
@@ -242,6 +239,7 @@ fun ChatContent(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(all = spacing.medium),
                 state = chatListState,
+                verticalArrangement = Arrangement.spacedBy(spacing.small)
             ) {
                 items(conversation.messages) { message ->
                     ChatBubble(message)
@@ -432,13 +430,13 @@ private fun ChatBubble(message: MessageEntity) {
 }
 
 @Composable
-fun ErrorMessage(error: AnthropicApiError) {
+fun ErrorMessage(error: ChatApiError) {
     val (icon, message) = when (error) {
-        is AnthropicApiError.AuthenticationError -> Icons.Rounded.Lock to error.message
-        is AnthropicApiError.RateLimitError -> Icons.Rounded.Timer to error.message
-        is AnthropicApiError.OverloadedError -> Icons.Rounded.CloudOff to error.message
-        is AnthropicApiError.NetworkError -> Icons.Rounded.WifiOff to error.message
-        is AnthropicApiError.RequestTooLarge -> Icons.Rounded.ContentCopy to error.message
+        is ChatApiError.AuthenticationError -> Icons.Rounded.Lock to error.message
+        is ChatApiError.RateLimitError -> Icons.Rounded.Timer to error.message
+        is ChatApiError.OverloadedError -> Icons.Rounded.CloudOff to error.message
+        is ChatApiError.NetworkError -> Icons.Rounded.WifiOff to error.message
+        is ChatApiError.RequestTooLarge -> Icons.Rounded.ContentCopy to error.message
         else -> Icons.Rounded.Error to (error.message ?: "")
     }
 
@@ -503,7 +501,7 @@ fun ScreenPreviewWithChat() {
             defaultApiKeyId = null,
             selectedApiKey = null,
             isLoading = false,
-            error = AnthropicApiError.InvalidRequest(message = "Shit went down"),
+            error = ChatApiError.InvalidRequest(message = "Shit went down"),
             onSendMessage = {},
             onChatsClicked = {},
             onApiKeyClicked = {},
