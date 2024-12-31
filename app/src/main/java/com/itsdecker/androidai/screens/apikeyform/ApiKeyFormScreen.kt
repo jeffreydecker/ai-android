@@ -1,17 +1,13 @@
-package com.itsdecker.androidai.screens.apiKey
+package com.itsdecker.androidai.screens.apikeyform
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -29,25 +25,25 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.itsdecker.androidai.R
 import com.itsdecker.androidai.data.SUPPORTED_PROVIDERS
 import com.itsdecker.androidai.data.SupportedProvider
 import com.itsdecker.androidai.database.ApiKeyEntity
+import com.itsdecker.androidai.screens.shared.DeleteConfirmationDialog
+import com.itsdecker.androidai.screens.shared.FormField
+import com.itsdecker.androidai.screens.shared.FormSubcontentText
+import com.itsdecker.androidai.screens.shared.FormTextInput
 import com.itsdecker.androidai.screens.shared.ScrollableContainer
 import com.itsdecker.androidai.ui.theme.AndroidaiTheme
 import com.itsdecker.androidai.ui.theme.Typography
@@ -79,7 +75,7 @@ fun ApiKeyFormScreen(
         onUserAgreementChanged = viewModel::onUserAgreementChanged,
         onSaveClick = viewModel::saveModel,
         onCancelClick = viewModel::cancel,
-        onDeleteClick = viewModel::deleteModel.takeIf { viewModel.isExistingKey() },
+        onDeleteClick = viewModel::deleteModel,
     )
 }
 
@@ -99,8 +95,10 @@ fun ApiKeyFormScreen(
     onUserAgreementChanged: (selected: Boolean) -> Unit,
     onSaveClick: () -> Unit,
     onCancelClick: () -> Unit,
-    onDeleteClick: (() -> Unit)? = null,
+    onDeleteClick: () -> Unit,
 ) {
+    val showDeleteConformationDialog = remember { mutableStateOf(false) }
+
     AndroidaiTheme {
         Column(
             modifier = modifier
@@ -125,7 +123,20 @@ fun ApiKeyFormScreen(
                 canSave = canSave,
                 onSaveClick = onSaveClick,
                 onCancelClick = onCancelClick,
-                onDeleteClick = onDeleteClick,
+                onDeleteClick = {
+                    showDeleteConformationDialog.value = true
+                }.takeIf { isExistingKey },
+            )
+        }
+
+        if (showDeleteConformationDialog.value) {
+            DeleteConfirmationDialog(
+                deletionTargetText = apiKeyEntity.name,
+                onDeleteConfirmed = {
+                    showDeleteConformationDialog.value = false
+                    onDeleteClick.invoke()
+                },
+                onDismiss = { showDeleteConformationDialog.value = false }
             )
         }
     }
@@ -255,7 +266,6 @@ fun ApiKeyButtons(
     onCancelClick: () -> Unit,
     onDeleteClick: (() -> Unit)? = null,
 ) {
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -326,99 +336,6 @@ fun ApiKeyButtons(
     }
 }
 
-@Composable
-fun FormField(
-    title: String,
-    details: String? = null,
-    fieldView: (@Composable ColumnScope.() -> Unit)? = null,
-    subContentView: @Composable (BoxScope.() -> Unit)? = null,
-    trailingContentView: @Composable (RowScope.() -> Unit)? = null,
-) {
-    Row(
-        Modifier
-            .fillMaxWidth(),
-    ) {
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .padding(all = spacing.default),
-            verticalArrangement = Arrangement.spacedBy(spacing.default),
-        ) {
-            Column(
-                modifier = Modifier.padding(horizontal = spacing.small)
-            ) {
-                Text(
-                    text = title,
-                    style = Typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    color = colorScheme.onSurface,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-
-                details?.let {
-                    Text(
-                        text = details,
-                        style = Typography.bodySmall,
-                        color = colorScheme.onSurface,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-            }
-
-            fieldView?.let { fieldView() }
-
-            Box(
-                modifier = Modifier.padding(horizontal = spacing.small)
-            ) {
-                subContentView?.let { subContentView() }
-            }
-        }
-
-        trailingContentView?.let { trailingContentView() }
-    }
-}
-
-@Composable
-fun FormTextInput(
-    modifier: Modifier = Modifier,
-    text: String,
-    obfuscate: Boolean = false,
-    enabled: Boolean = true,
-    maxLines: Int = 1,
-    maxCharacters: Int = Int.MAX_VALUE,
-    onValueChanged: (text: String) -> Unit,
-) {
-    Column(
-        modifier = modifier,
-    ) {
-        OutlinedTextField(
-            value = text,
-            onValueChange = { newValue -> onValueChanged(newValue.take(maxCharacters)) },
-            singleLine = maxLines == 1,
-            maxLines = maxLines,
-            modifier = Modifier.fillMaxWidth(),
-            visualTransformation = if (obfuscate) {
-                PasswordVisualTransformation()
-            } else VisualTransformation.None,
-            enabled = enabled,
-        )
-        if (maxCharacters < Int.MAX_VALUE) {
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = spacing.tiny),
-                text = "${text.length}/$maxCharacters",
-                color = when (text.length >= maxCharacters) {
-                    true -> colorScheme.error
-                    false -> colorScheme.onSurfaceVariant
-                },
-                style = Typography.labelMedium,
-                textAlign = TextAlign.End,
-            )
-        }
-    }
-}
-
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun FormFieldProviderChips(
@@ -471,24 +388,6 @@ fun FormFieldProviderChips(
             }
         }
     }
-}
-
-@Composable
-fun FormSlider() {
-
-}
-
-@Composable
-fun FormSubcontentText(
-    text: String,
-    style: TextStyle = Typography.bodyLarge,
-) {
-    Text(
-        text = text,
-        style = style,
-        color = colorScheme.onSurface,
-        modifier = Modifier.fillMaxWidth(),
-    )
 }
 
 @PreviewLightDark

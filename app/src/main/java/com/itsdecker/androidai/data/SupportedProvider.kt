@@ -13,7 +13,9 @@ import com.itsdecker.androidai.ui.theme.GptBrand
 
 val SUPPORTED_PROVIDERS = listOf(
     SupportedProvider.Anthropic,
+    SupportedProvider.OpenAI,
     SupportedProvider.DeepSeek,
+    SupportedProvider.Google,
 )
 
 enum class SupportedProvider(

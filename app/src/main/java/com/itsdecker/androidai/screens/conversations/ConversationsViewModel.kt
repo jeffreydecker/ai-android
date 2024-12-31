@@ -25,7 +25,7 @@ class ConversationsViewModel @Inject constructor(
     private val navRoute = savedStateHandle.toRoute<NavRoute.Conversations>()
 
     val conversations = chatRepository
-        .getAllConversations(apiKeyId = navRoute.apiKeyId)
+        .getAllConversations(apiKeyId = null)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),

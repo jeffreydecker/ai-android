@@ -1,4 +1,4 @@
-package com.itsdecker.androidai.screens.main
+package com.itsdecker.androidai.screens.apikeyslist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,10 +8,8 @@ import com.itsdecker.androidai.database.ApiKeyEntity
 import com.itsdecker.androidai.navigation.NavRoute
 import com.itsdecker.androidai.navigation.Navigator
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -30,20 +28,25 @@ class ApiKeysViewModel @Inject constructor(
             initialValue = emptyList()
         )
 
-    private val _defaultApiKeyId = MutableStateFlow<String?>(null)
-    val defaultApiKeyId = _defaultApiKeyId.asStateFlow()
+    val defaultApiKeyId = settingsRepository.observeDefaultApiKey()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = null,
+        )
 
     init {
         viewModelScope.launch {
-            _defaultApiKeyId.value = settingsRepository.getDefaultApiKeyId()
+            // Used to initialize default API Key
+            settingsRepository.maybeInitializeDefaultApiKey()
         }
     }
 
     fun setKeyAsDefault(apiKey: ApiKeyEntity) = viewModelScope.launch {
         settingsRepository.setDefaultApiKeyId(apiKeyId = apiKey.id)
-        _defaultApiKeyId.value = apiKey.id
     }
 
     fun goToChat(apiKeyId: String) = navigator.navigateTo(NavRoute.Conversations(apiKeyId = apiKeyId))
-    fun goToAddModel() = navigator.navigateTo(NavRoute.ApiKeyForm(apiKeyId = null))
+    fun goToEditKey(apiKeyId: String) = navigator.navigateTo(NavRoute.ApiKeyForm(apiKeyId = apiKeyId))
+    fun goToAddKey() = navigator.navigateTo(NavRoute.ApiKeyForm(apiKeyId = null))
 }

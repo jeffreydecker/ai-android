@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -51,12 +50,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.itsdecker.androidai.R
 import com.itsdecker.androidai.database.ApiKeyEntity
@@ -64,8 +61,8 @@ import com.itsdecker.androidai.database.ConversationWithMessages
 import com.itsdecker.androidai.database.MessageEntity
 import com.itsdecker.androidai.network.ChatApiError
 import com.itsdecker.androidai.network.anthropic.ANTHROPIC_MESSENGER_ROLE_USER
-import com.itsdecker.androidai.screens.main.ApiKeysList
-import com.itsdecker.androidai.screens.main.ApiKeysViewModel
+import com.itsdecker.androidai.screens.apikeyslist.ApiKeysList
+import com.itsdecker.androidai.screens.apikeyslist.ApiKeysViewModel
 import com.itsdecker.androidai.screens.preview.ThemePreviews
 import com.itsdecker.androidai.screens.preview.apiKeyPreviewList
 import com.itsdecker.androidai.screens.preview.chatMessagesPreviewList
@@ -98,6 +95,7 @@ fun ChatScreen(
         onChatsClicked = viewModel::goToConversations,
         onApiKeyClicked = viewModel::updateSelectedApiKey,
         onAddApiKeyClicked = viewModel::goToAddApiKey,
+        onEditApiKeyClicked = { apiKeyEntity -> apiKeysViewModel.goToEditKey(apiKeyEntity.id) },
         onApiKeySettingsClicked = viewModel::goToApiKeySettings,
     )
 }
@@ -114,6 +112,7 @@ fun ChatWindow(
     onChatsClicked: () -> Unit,
     onApiKeyClicked: (apiKey: ApiKeyEntity) -> Unit,
     onAddApiKeyClicked: () -> Unit,
+    onEditApiKeyClicked: (apiKey: ApiKeyEntity) -> Unit,
     onApiKeySettingsClicked: () -> Unit,
 ) {
     Box(
@@ -139,6 +138,7 @@ fun ChatWindow(
                 selectedApiKey = selectedApiKey,
                 onApiKeyClicked = onApiKeyClicked,
                 onAddApiKeyClicked = onAddApiKeyClicked,
+                onEditApiKeyClicked = onEditApiKeyClicked,
                 onApiKeySettingsClicked = onApiKeySettingsClicked,
             )
 
@@ -233,6 +233,7 @@ fun ChatContent(
     selectedApiKey: ApiKeyEntity?,
     onApiKeyClicked: (apiKey: ApiKeyEntity) -> Unit,
     onAddApiKeyClicked: () -> Unit,
+    onEditApiKeyClicked: (apiKey: ApiKeyEntity) -> Unit,
     onApiKeySettingsClicked: () -> Unit,
 ) {
     // TODO - This is currently and easy way to keep chat scrolling. Longer term it would be nice
@@ -269,6 +270,7 @@ fun ChatContent(
                 selectedApiKey = selectedApiKey,
                 onApiKeyClicked = onApiKeyClicked,
                 onAddApiKeyClicked = onAddApiKeyClicked,
+                onApiKeyLongClicked = onEditApiKeyClicked,
                 onApiKeySettingsClicked = onApiKeySettingsClicked,
             )
         }
@@ -282,6 +284,7 @@ private fun EmptyChatPlaceholder(
     defaultApiKeyId: String?,
     selectedApiKey: ApiKeyEntity?,
     onApiKeyClicked: (apiKey: ApiKeyEntity) -> Unit,
+    onApiKeyLongClicked: (apiKey: ApiKeyEntity) -> Unit,
     onAddApiKeyClicked: () -> Unit,
     onApiKeySettingsClicked: () -> Unit,
 ) {
@@ -323,6 +326,10 @@ private fun EmptyChatPlaceholder(
                 onItemClick = { apiKeyId ->
                     apiKeys.firstOrNull { it.id == apiKeyId }
                         ?.let { apiKey -> onApiKeyClicked(apiKey) }
+                },
+                onItemLongClick = { apiKeyId ->
+                    apiKeys.firstOrNull { it.id == apiKeyId }
+                        ?.let { apiKey -> onApiKeyLongClicked(apiKey) }
                 },
                 modifier = Modifier
                     .clip(shape = RoundedCornerShape(cornerRadius.large))
@@ -496,6 +503,7 @@ fun ScreenPreviewWithChat() {
             onChatsClicked = {},
             onApiKeyClicked = {},
             onAddApiKeyClicked = {},
+            onEditApiKeyClicked = {},
             onApiKeySettingsClicked = {},
         )
     }
@@ -516,6 +524,7 @@ fun ScreenPreviewWithKeys() {
             onChatsClicked = {},
             onApiKeyClicked = {},
             onAddApiKeyClicked = {},
+            onEditApiKeyClicked = {},
             onApiKeySettingsClicked = {},
         )
     }

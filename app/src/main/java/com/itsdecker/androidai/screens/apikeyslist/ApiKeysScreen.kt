@@ -1,8 +1,8 @@
-package com.itsdecker.androidai.screens.main
+package com.itsdecker.androidai.screens.apikeyslist
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -46,8 +46,9 @@ fun ApiKeysScreen(
         modifier = modifier,
         apiKeys = apiKeys,
         defaultKeyId = defaultKeyId,
-        onApiKeyClicked = viewModel::goToChat,
-        onAddApiKeyClicked = viewModel::goToAddModel,
+        onApiKeyClicked = viewModel::goToEditKey,
+        onApiKeyLongClicked = {},
+        onAddApiKeyClicked = viewModel::goToAddKey,
     )
 }
 
@@ -58,6 +59,7 @@ fun ApiKeysWindow(
     defaultKeyId: String? = null,
     selectedKeyId: String? = null,
     onApiKeyClicked: (apiKeyId: String) -> Unit,
+    onApiKeyLongClicked: (apiKeyId: String) -> Unit,
     onAddApiKeyClicked: () -> Unit,
 ) {
     AndroidaiTheme {
@@ -70,6 +72,7 @@ fun ApiKeysWindow(
                 defaultKeyId = defaultKeyId,
                 selectedKeyId = selectedKeyId,
                 onItemClick = onApiKeyClicked,
+                onItemLongClick = onApiKeyLongClicked,
             )
 
             AddApiKeyButton(
@@ -89,6 +92,7 @@ fun ApiKeysList(
     defaultKeyId: String? = null,
     selectedKeyId: String? = null,
     onItemClick: (apiKeyId: String) -> Unit,
+    onItemLongClick: (apiKeyId: String) -> Unit
 ) {
     LazyColumn(
         modifier = modifier,
@@ -99,17 +103,20 @@ fun ApiKeysList(
                 isDefault = apiKey.id == defaultKeyId,
                 isSelected = apiKey.id == selectedKeyId,
                 onClick = onItemClick,
+                onLongClick = onItemLongClick,
             )
         }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ApiKeyItem(
     apiKey: ApiKeyEntity,
     isDefault: Boolean,
     isSelected: Boolean,
     onClick: (apiKeyId: String) -> Unit,
+    onLongClick: (apiKeyId: String) -> Unit,
 ) {
     ListItem(
         overlineContent = {
@@ -138,7 +145,10 @@ fun ApiKeyItem(
             true -> getSelectedItemColors()
             false -> getItemColors()
         },
-        modifier = Modifier.clickable { onClick(apiKey.id) }.focusable(true),
+        modifier = Modifier.combinedClickable(
+            onClick = { onClick(apiKey.id) },
+            onLongClick = { onLongClick(apiKey.id) },
+        )
     )
 }
 
@@ -184,6 +194,7 @@ private fun MainScreenPreview() {
         defaultKeyId = "2",
         selectedKeyId = "1",
         onApiKeyClicked = {},
+        onApiKeyLongClicked = {},
         onAddApiKeyClicked = {},
     )
 }

@@ -1,4 +1,4 @@
-package com.itsdecker.androidai.screens.apiKey
+package com.itsdecker.androidai.screens.apikeyform
 
 import android.content.Context
 import androidx.lifecycle.SavedStateHandle
@@ -37,7 +37,7 @@ class ApiKeyViewModel @Inject constructor(
     private val _isDefaultKey = MutableStateFlow(false)
     val isDefaultKey = _isDefaultKey.asStateFlow()
 
-    private val _userAgreementChecked = MutableStateFlow(false)
+    private val _userAgreementChecked = MutableStateFlow(!isNewKey)
     val userAgreementChecked = _userAgreementChecked.asStateFlow()
 
     init {

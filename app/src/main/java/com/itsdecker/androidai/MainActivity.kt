@@ -1,6 +1,5 @@
 package com.itsdecker.androidai
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,7 +12,6 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -26,10 +24,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.itsdecker.androidai.navigation.NavRoute
 import com.itsdecker.androidai.navigation.Navigator
-import com.itsdecker.androidai.screens.apiKey.ApiKeyFormScreen
+import com.itsdecker.androidai.screens.apikeyform.ApiKeyFormScreen
 import com.itsdecker.androidai.screens.chat.ChatScreen
 import com.itsdecker.androidai.screens.conversations.ConversationsScreen
-import com.itsdecker.androidai.screens.main.ApiKeysScreen
+import com.itsdecker.androidai.screens.apikeyslist.ApiKeysScreen
 import com.itsdecker.androidai.ui.theme.AndroidaiTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch

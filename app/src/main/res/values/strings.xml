@@ -54,8 +54,8 @@
     <string name="delete_confirmation_details">Are you sure you want to delete %1$s? This cannot be undone.</string>
 
     // Action Options
-    <string name="delete_option">Delete</string>
     <string name="cancel_option">Cancel</string>
+    <string name="delete_option">Delete</string>
     <string name="save_option">Save</string>
     <string name="reset_to_default">Reset to Default</string>
 

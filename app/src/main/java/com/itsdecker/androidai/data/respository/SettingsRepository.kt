@@ -27,13 +27,17 @@ class SettingsRepository @Inject constructor(
     private val defaultApiKeyIdPref = stringPreferencesKey("default_api_key_id")
     private val defaultApiKeyId: Flow<String?> = dataStore.data.map { preferences -> preferences[defaultApiKeyIdPref] }
 
-    suspend fun getDefaultApiKeyId(): String? = withContext(Dispatchers.IO) {
+    suspend fun getDefaultApiKeyId(): String? = maybeInitializeDefaultApiKey()
+
+    suspend fun maybeInitializeDefaultApiKey() = withContext(Dispatchers.IO) {
         defaultApiKeyId.firstOrNull()
             ?: chatRepository.getLatestApiKey()?.let { apiKey ->
                 setDefaultApiKeyId(apiKeyId = apiKey.id)
                 apiKey.id
             }
     }
+
+    fun observeDefaultApiKey(): Flow<String?> = defaultApiKeyId
 
     suspend fun setDefaultApiKeyId(apiKeyId: String?) = withContext(Dispatchers.IO) {
         dataStore.updateData { preferences ->
