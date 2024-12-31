@@ -35,10 +35,14 @@ class SettingsRepository @Inject constructor(
             }
     }
 
-    suspend fun setDefaultApiKeyId(apiKeyId: String) = withContext(Dispatchers.IO) {
+    suspend fun setDefaultApiKeyId(apiKeyId: String?) = withContext(Dispatchers.IO) {
         dataStore.updateData { preferences ->
             preferences.toMutablePreferences().apply {
-                set(defaultApiKeyIdPref, apiKeyId)
+                if (apiKeyId == null) {
+                    remove(defaultApiKeyIdPref)
+                } else {
+                    set(defaultApiKeyIdPref, apiKeyId)
+                }
             }
         }
     }

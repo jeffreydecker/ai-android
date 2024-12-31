@@ -1,7 +1,5 @@
 package com.itsdecker.androidai.screens.main
 
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.itsdecker.androidai.data.respository.ChatRepository
@@ -47,5 +45,5 @@ class ApiKeysViewModel @Inject constructor(
     }
 
     fun goToChat(apiKeyId: String) = navigator.navigateTo(NavRoute.Conversations(apiKeyId = apiKeyId))
-    fun goToAddModel() = navigator.navigateTo(NavRoute.AddKey)
+    fun goToAddModel() = navigator.navigateTo(NavRoute.ApiKeyForm(apiKeyId = null))
 }

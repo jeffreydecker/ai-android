@@ -26,10 +26,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.itsdecker.androidai.navigation.NavRoute
 import com.itsdecker.androidai.navigation.Navigator
-import com.itsdecker.androidai.screens.addkey.AddKeyScreen
-import com.itsdecker.androidai.screens.main.ApiKeysScreen
+import com.itsdecker.androidai.screens.apiKey.ApiKeyFormScreen
 import com.itsdecker.androidai.screens.chat.ChatScreen
 import com.itsdecker.androidai.screens.conversations.ConversationsScreen
+import com.itsdecker.androidai.screens.main.ApiKeysScreen
 import com.itsdecker.androidai.ui.theme.AndroidaiTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -38,10 +38,9 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    @Inject lateinit var navigator: Navigator
+    @Inject
+    lateinit var navigator: Navigator
 
-    @OptIn(ExperimentalMaterial3Api::class)
-    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -50,25 +49,50 @@ class MainActivity : ComponentActivity() {
             observeNavigation(navController)
             AndroidaiTheme {
                 Scaffold(
-                    modifier = Modifier.fillMaxSize().imePadding(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .imePadding(),
                 ) { innerPadding ->
                     NavHost(
                         navController = navController,
                         startDestination = NavRoute.Chat(apiKeyId = null, conversationId = null),
-                        enterTransition = { slideInVertically(tween(durationMillis = 300), initialOffsetY = { fullHeight -> fullHeight}) },
-                        exitTransition = { slideOutHorizontally(tween(durationMillis = 300), targetOffsetX = { fullWidth -> -fullWidth}) },
-                        popEnterTransition = { slideInHorizontally(tween(durationMillis = 300), initialOffsetX = { fullWidth -> -fullWidth}) },
-                        popExitTransition = { slideOutVertically(tween(durationMillis = 300), targetOffsetY = { fullHeight -> fullHeight}) },
-                        modifier = Modifier.padding(innerPadding),
+                        enterTransition = {
+                            slideInVertically(
+                                tween(durationMillis = 300),
+                                initialOffsetY = { fullHeight -> fullHeight })
+                        },
+                        exitTransition = {
+                            slideOutHorizontally(
+                                tween(durationMillis = 300),
+                                targetOffsetX = { fullWidth -> -fullWidth })
+                        },
+                        popEnterTransition = {
+                            slideInHorizontally(
+                                tween(durationMillis = 300),
+                                initialOffsetX = { fullWidth -> -fullWidth })
+                        },
+                        popExitTransition = {
+                            slideOutVertically(
+                                tween(durationMillis = 300),
+                                targetOffsetY = { fullHeight -> fullHeight })
+                        },
                     ) {
                         composable<NavRoute.ApiKeys> {
-                            ApiKeysScreen(viewModel = hiltViewModel())
+                            ApiKeysScreen(
+                                modifier = Modifier.padding(innerPadding),
+                                viewModel = hiltViewModel(),
+                            )
                         }
-                        composable<NavRoute.AddKey> {
-                            AddKeyScreen(viewModel = hiltViewModel())
+                        composable<NavRoute.ApiKeyForm> {
+                            ApiKeyFormScreen(
+                                modifier = Modifier.padding(innerPadding),
+                                viewModel = hiltViewModel (),
+                            )
                         }
                         composable<NavRoute.Conversations> {
-                            ConversationsScreen(viewModel = hiltViewModel())
+                            ConversationsScreen(
+                                modifier = Modifier.padding(innerPadding),
+                                viewModel = hiltViewModel())
                         }
                         composable<NavRoute.Chat> {
                             ChatScreen(

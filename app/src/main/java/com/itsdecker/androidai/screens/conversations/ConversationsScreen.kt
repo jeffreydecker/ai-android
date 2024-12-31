@@ -33,10 +33,12 @@ import com.itsdecker.androidai.utils.TimeAgoFormatter
 
 @Composable
 fun ConversationsScreen(
+    modifier: Modifier = Modifier,
     viewModel: ConversationsViewModel,
 ) {
     val conversations = viewModel.conversations.collectAsState()
     ConversationsView(
+        modifier = modifier,
         conversations = conversations.value,
         onConversationClicked = viewModel::goToConversation,
         onNewChatClicked = viewModel::startNewConversation,
@@ -45,14 +47,14 @@ fun ConversationsScreen(
 
 @Composable
 fun ConversationsView(
+    modifier: Modifier = Modifier,
     conversations: List<ConversationWithApiKey>,
     onConversationClicked: (conversationId: String, apiKeyId: String) -> Unit,
     onNewChatClicked: () -> Unit,
 ) {
     AndroidaiTheme {
         Box(
-            modifier = Modifier
-                .fillMaxSize()
+            modifier = modifier.fillMaxSize()
         ) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),

@@ -32,6 +32,7 @@ class ApiRepository @Inject constructor(
             SupportedProvider.DeepSeek -> deepSeekApi
             SupportedProvider.OpenAI,
             SupportedProvider.Google,
+            SupportedProvider.UNINITIALIZED,
             SupportedProvider.UNKNOWN -> throw IllegalStateException("Unimplemented Api Key Type")
         }
 }

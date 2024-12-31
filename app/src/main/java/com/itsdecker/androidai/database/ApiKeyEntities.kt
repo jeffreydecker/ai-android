@@ -15,7 +15,16 @@ data class ApiKeyEntity(
     val description: String,
     val apiKey: String,
     val chatModel: SupportedProvider, // TODO - Rename me
-)
+) {
+    companion object {
+        fun empty() : ApiKeyEntity = ApiKeyEntity (
+            name = "",
+            description = "",
+            apiKey = "",
+            chatModel = SupportedProvider.UNINITIALIZED,
+        )
+    }
+}
 
 data class ApiKeyWithConversations(
     @Embedded val apiKey: ApiKeyEntity,

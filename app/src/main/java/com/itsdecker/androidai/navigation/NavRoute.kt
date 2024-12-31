@@ -19,6 +19,8 @@ sealed class NavRoute {
     data object ApiKeys : NavRoute()
 
     @Serializable
-    data object AddKey : NavRoute()
+    data class ApiKeyForm(
+        val apiKeyId: String?
+    ) : NavRoute()
 
 }

@@ -36,12 +36,14 @@ import com.itsdecker.androidai.ui.theme.spacing
 
 @Composable
 fun ApiKeysScreen(
+    modifier: Modifier = Modifier,
     viewModel: ApiKeysViewModel,
 ) {
     val apiKeys by viewModel.apiKeys.collectAsState()
     val defaultKeyId by viewModel.defaultApiKeyId.collectAsState()
 
     ApiKeysWindow(
+        modifier = modifier,
         apiKeys = apiKeys,
         defaultKeyId = defaultKeyId,
         onApiKeyClicked = viewModel::goToChat,
@@ -51,12 +53,12 @@ fun ApiKeysScreen(
 
 @Composable
 fun ApiKeysWindow(
+    modifier: Modifier = Modifier,
     apiKeys: List<ApiKeyEntity>,
     defaultKeyId: String? = null,
     selectedKeyId: String? = null,
     onApiKeyClicked: (apiKeyId: String) -> Unit,
     onAddApiKeyClicked: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     AndroidaiTheme {
         Box(modifier = modifier.fillMaxSize()) {

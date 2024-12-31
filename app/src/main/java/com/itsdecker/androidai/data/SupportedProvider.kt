@@ -34,15 +34,21 @@ enum class SupportedProvider(
     ),
 
     OpenAI(
-        providerName = "OpenAI GPT - Coming Soon",
+        providerName = "OpenAI ChatGPT",
         icon = R.drawable.ic_ai_open_ai,
         brandColor = GptBrand,
     ),
 
     Google(
-        providerName = "Google Gemini - Coming Soon",
+        providerName = "Google Gemini",
         icon = R.drawable.ic_ai_gemini,
         brandColor = GeminiBrand,
+    ),
+
+    UNINITIALIZED(
+        providerName = "",
+        icon = R.drawable.ic_round_error_outline,
+        brandColor = Color.Red,
     ),
 
     UNKNOWN(

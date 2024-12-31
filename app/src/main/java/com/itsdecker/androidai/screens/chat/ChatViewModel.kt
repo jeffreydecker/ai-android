@@ -67,7 +67,7 @@ class ChatViewModel @Inject constructor(
     }
 
     fun goToAddApiKey() {
-        navigator.navigateTo(NavRoute.AddKey)
+        navigator.navigateTo(NavRoute.ApiKeyForm(apiKeyId = null))
     }
 
     fun goToApiKeySettings() {

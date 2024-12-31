@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -67,6 +69,7 @@ import com.itsdecker.androidai.screens.main.ApiKeysViewModel
 import com.itsdecker.androidai.screens.preview.ThemePreviews
 import com.itsdecker.androidai.screens.preview.apiKeyPreviewList
 import com.itsdecker.androidai.screens.preview.chatMessagesPreviewList
+import com.itsdecker.androidai.screens.shared.ScrollableContainer
 import com.itsdecker.androidai.ui.theme.AndroidaiTheme
 import com.itsdecker.androidai.ui.theme.colorScheme
 import com.itsdecker.androidai.ui.theme.cornerRadius
@@ -114,42 +117,30 @@ fun ChatWindow(
     onApiKeySettingsClicked: () -> Unit,
 ) {
     Box(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(color = colorScheme.surface),
-            ) {
+        ) {
             ChatHeader(
                 chatTitle = conversation?.conversation?.title,
                 apiKeyName = selectedApiKey?.name,
                 onChatsClicked = onChatsClicked,
+                onKeysClicked = onApiKeySettingsClicked,
             )
 
-            Box(
-                Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-            ) {
-                ChatContent(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    conversation = conversation,
-                    apiKeys = apiKeys,
-                    defaultApiKeyId = defaultApiKeyId,
-                    selectedApiKey = selectedApiKey,
-                    onApiKeyClicked = onApiKeyClicked,
-                    onAddApiKeyClicked = onAddApiKeyClicked,
-                    onApiKeySettingsClicked = onApiKeySettingsClicked,
-                )
-
-                TopToBottomGradient(
-                    height = spacing.medium,
-                    color = colorScheme.surface,
-                )
-            }
+            ChatContent(
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                conversation = conversation,
+                apiKeys = apiKeys,
+                defaultApiKeyId = defaultApiKeyId,
+                selectedApiKey = selectedApiKey,
+                onApiKeyClicked = onApiKeyClicked,
+                onAddApiKeyClicked = onAddApiKeyClicked,
+                onApiKeySettingsClicked = onApiKeySettingsClicked,
+            )
 
             error?.let { errorMessage -> ErrorMessage(errorMessage) }
 
@@ -163,13 +154,14 @@ fun ChatHeader(
     chatTitle: String?,
     apiKeyName: String?,
     onChatsClicked: () -> Unit,
+    onKeysClicked: () -> Unit,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .statusBarsPadding()
             .background(color = colorScheme.surface)
-            .padding(all = spacing.small)
-            .padding(end = spacing.large),
+            .padding(all = spacing.small),
         horizontalArrangement = Arrangement.spacedBy(spacing.medium),
     ) {
         IconButton(
@@ -178,14 +170,15 @@ fun ChatHeader(
             Icon(
                 imageVector = Icons.AutoMirrored.Rounded.Comment,
                 tint = colorScheme.onSurface,
-                contentDescription = "",
+                contentDescription = stringResource(R.string.my_chats_button),
             )
         }
 
         Column(
             modifier = Modifier
                 .align(Alignment.CenterVertically)
-                .padding(end = spacing.small),
+                .padding(end = spacing.small)
+                .weight(weight = 1f),
         ) {
             Text(
                 text = chatTitle ?: stringResource(R.string.new_chat_title),
@@ -208,6 +201,26 @@ fun ChatHeader(
             }
         }
 
+        IconButton(
+            onClick = onKeysClicked,
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.Key,
+                tint = colorScheme.onSurface,
+                contentDescription = stringResource(R.string.my_keys_button),
+            )
+        }
+
+        // TODO - For adjustment and maybe changing provider?
+//        IconButton(
+//            onClick = onKeysClicked,
+//        ) {
+//            Icon(
+//                imageVector = Icons.Rounded.Settings,
+//                tint = colorScheme.onSurface,
+//                contentDescription = stringResource(R.string.my_keys_button),
+//            )
+//        }
     }
 }
 
@@ -231,7 +244,7 @@ fun ChatContent(
         chatListState.animateScrollToItem(chatListState.layoutInfo.totalItemsCount)
     }
 
-    Box(
+    ScrollableContainer(
         modifier = modifier,
     ) {
         if (conversation?.messages?.isNotEmpty() == true) {
@@ -297,7 +310,7 @@ private fun EmptyChatPlaceholder(
                     Icon(
                         imageVector = Icons.Rounded.Key,
                         tint = colorScheme.onSurface,
-                        contentDescription = stringResource(R.string.key_settings_button),
+                        contentDescription = stringResource(R.string.my_keys_button),
                     )
                 }
             }
@@ -350,6 +363,7 @@ private fun ChatInput(
                     topEnd = cornerRadius.large,
                 )
             )
+            .navigationBarsPadding()
             .padding(spacing.small),
         horizontalArrangement = Arrangement.spacedBy(spacing.small),
     ) {
@@ -465,30 +479,6 @@ fun ErrorMessage(error: ChatApiError) {
             style = MaterialTheme.typography.bodyMedium
         )
     }
-}
-
-@Composable
-fun TopToBottomGradient(
-    height: Dp,
-    color: Color,
-) {
-    val gradientColors = listOf(
-        color,
-        Color.Transparent,
-    )
-
-    val gradientBrush = Brush.verticalGradient(
-        colors = gradientColors,
-        startY = 0f,
-        endY = Float.POSITIVE_INFINITY,
-    )
-
-    Box(
-        modifier = Modifier
-            .background(brush = gradientBrush)
-            .fillMaxWidth()
-            .height(height = height),
-    )
 }
 
 @ThemePreviews

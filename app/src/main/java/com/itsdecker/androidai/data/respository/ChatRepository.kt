@@ -1,8 +1,7 @@
 package com.itsdecker.androidai.data.respository
 
-import com.itsdecker.androidai.data.SupportedProvider
-import com.itsdecker.androidai.database.ChatDatabase
 import com.itsdecker.androidai.database.ApiKeyEntity
+import com.itsdecker.androidai.database.ChatDatabase
 import com.itsdecker.androidai.database.ConversationEntity
 import com.itsdecker.androidai.database.ConversationWithMessages
 import com.itsdecker.androidai.database.MessageEntity
@@ -22,28 +21,20 @@ class ChatRepository @Inject constructor(
 
     // API Keys
 
-    suspend fun createApiKey(
-        name: String,
-        description: String,
-        apiKey: String,
-        supportedProvider: SupportedProvider,
-    ) = withContext(Dispatchers.IO) {
-        val chatModel = ApiKeyEntity(
-            id = UUID.randomUUID().toString(),
-            name = name,
-            description = description,
-            apiKey = apiKey,
-            chatModel = supportedProvider,
-        )
-        apiKeyDao.insertModel(chatModel)
-    }
+    suspend fun createApiKey(apiKey: ApiKeyEntity) =
+        withContext(Dispatchers.IO) { apiKeyDao.insertModel(apiKey) }
 
     fun getAllApiKeys() = apiKeyDao.getAllApiKeys()
 
-    fun getApiKey(apiKeyId: String?) =
+    suspend fun getApiKey(apiKeyId: String?) = withContext(Dispatchers.IO) {
         apiKeyDao.getApiKey(apiKeyId = apiKeyId)
+    }
 
     fun getLatestApiKey() = apiKeyDao.getLatestApiKey()
+
+    suspend fun deleteApiKey(apiKey: ApiKeyEntity) = withContext(Dispatchers.IO) {
+        apiKeyDao.deleteApiKey(apiKey)
+    }
 
     suspend fun deleteApiKeys() = withContext(Dispatchers.IO) {
         apiKeyDao.deleteApiKeys()
