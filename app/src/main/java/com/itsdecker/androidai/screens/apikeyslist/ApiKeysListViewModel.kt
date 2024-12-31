@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ApiKeysViewModel @Inject constructor(
+class ApiKeysListViewModel @Inject constructor(
     private val chatRepository: ChatRepository,
     private val navigator: Navigator,
     private val settingsRepository: SettingsRepository,

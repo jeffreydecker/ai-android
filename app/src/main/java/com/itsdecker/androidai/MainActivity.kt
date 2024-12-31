@@ -27,7 +27,7 @@ import com.itsdecker.androidai.navigation.Navigator
 import com.itsdecker.androidai.screens.apikeyform.ApiKeyFormScreen
 import com.itsdecker.androidai.screens.chat.ChatScreen
 import com.itsdecker.androidai.screens.conversations.ConversationsScreen
-import com.itsdecker.androidai.screens.apikeyslist.ApiKeysScreen
+import com.itsdecker.androidai.screens.apikeyslist.ApiKeysListScreen
 import com.itsdecker.androidai.ui.theme.AndroidaiTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -76,7 +76,7 @@ class MainActivity : ComponentActivity() {
                         },
                     ) {
                         composable<NavRoute.ApiKeys> {
-                            ApiKeysScreen(
+                            ApiKeysListScreen(
                                 modifier = Modifier.padding(innerPadding),
                                 viewModel = hiltViewModel(),
                             )
@@ -95,7 +95,7 @@ class MainActivity : ComponentActivity() {
                         composable<NavRoute.Chat> {
                             ChatScreen(
                                 viewModel = hiltViewModel(),
-                                apiKeysViewModel = hiltViewModel(),
+                                apiKeysListViewModel = hiltViewModel(),
                             )
                         }
                     }

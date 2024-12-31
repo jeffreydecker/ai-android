@@ -35,14 +35,14 @@ import com.itsdecker.androidai.ui.theme.colorScheme
 import com.itsdecker.androidai.ui.theme.spacing
 
 @Composable
-fun ApiKeysScreen(
+fun ApiKeysListScreen(
     modifier: Modifier = Modifier,
-    viewModel: ApiKeysViewModel,
+    viewModel: ApiKeysListViewModel,
 ) {
     val apiKeys by viewModel.apiKeys.collectAsState()
     val defaultKeyId by viewModel.defaultApiKeyId.collectAsState()
 
-    ApiKeysWindow(
+    ApiKeysListScreen(
         modifier = modifier,
         apiKeys = apiKeys,
         defaultKeyId = defaultKeyId,
@@ -53,7 +53,7 @@ fun ApiKeysScreen(
 }
 
 @Composable
-fun ApiKeysWindow(
+fun ApiKeysListScreen(
     modifier: Modifier = Modifier,
     apiKeys: List<ApiKeyEntity>,
     defaultKeyId: String? = null,
@@ -189,7 +189,7 @@ private fun getItemColors(): ListItemColors =
 @ThemePreviews
 @Composable
 private fun MainScreenPreview() {
-    ApiKeysWindow(
+    ApiKeysListScreen(
         apiKeys = apiKeyPreviewList(),
         defaultKeyId = "2",
         selectedKeyId = "1",

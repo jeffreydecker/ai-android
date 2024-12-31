@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -53,7 +52,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.itsdecker.androidai.R
 import com.itsdecker.androidai.database.ApiKeyEntity
@@ -62,10 +60,11 @@ import com.itsdecker.androidai.database.MessageEntity
 import com.itsdecker.androidai.network.ChatApiError
 import com.itsdecker.androidai.network.anthropic.ANTHROPIC_MESSENGER_ROLE_USER
 import com.itsdecker.androidai.screens.apikeyslist.ApiKeysList
-import com.itsdecker.androidai.screens.apikeyslist.ApiKeysViewModel
+import com.itsdecker.androidai.screens.apikeyslist.ApiKeysListViewModel
 import com.itsdecker.androidai.screens.preview.ThemePreviews
 import com.itsdecker.androidai.screens.preview.apiKeyPreviewList
 import com.itsdecker.androidai.screens.preview.chatMessagesPreviewList
+import com.itsdecker.androidai.screens.shared.ScreenHeader
 import com.itsdecker.androidai.screens.shared.ScrollableContainer
 import com.itsdecker.androidai.ui.theme.AndroidaiTheme
 import com.itsdecker.androidai.ui.theme.colorScheme
@@ -75,11 +74,11 @@ import com.itsdecker.androidai.ui.theme.spacing
 @Composable
 fun ChatScreen(
     viewModel: ChatViewModel,
-    apiKeysViewModel: ApiKeysViewModel,
+    apiKeysListViewModel: ApiKeysListViewModel,
 ) {
     val conversation by viewModel.conversation.collectAsState()
-    val apiKeys by apiKeysViewModel.apiKeys.collectAsState()
-    val defaultApiKeyId by apiKeysViewModel.defaultApiKeyId.collectAsState()
+    val apiKeys by apiKeysListViewModel.apiKeys.collectAsState()
+    val defaultApiKeyId by apiKeysListViewModel.defaultApiKeyId.collectAsState()
     val selectedApiKey by viewModel.selectedApiKey.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
@@ -95,7 +94,7 @@ fun ChatScreen(
         onChatsClicked = viewModel::goToConversations,
         onApiKeyClicked = viewModel::updateSelectedApiKey,
         onAddApiKeyClicked = viewModel::goToAddApiKey,
-        onEditApiKeyClicked = { apiKeyEntity -> apiKeysViewModel.goToEditKey(apiKeyEntity.id) },
+        onEditApiKeyClicked = { apiKeyEntity -> apiKeysListViewModel.goToEditKey(apiKeyEntity.id) },
         onApiKeySettingsClicked = viewModel::goToApiKeySettings,
     )
 }
@@ -156,72 +155,32 @@ fun ChatHeader(
     onChatsClicked: () -> Unit,
     onKeysClicked: () -> Unit,
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .statusBarsPadding()
-            .background(color = colorScheme.surface)
-            .padding(all = spacing.small),
-        horizontalArrangement = Arrangement.spacedBy(spacing.medium),
-    ) {
-        IconButton(
-            onClick = onChatsClicked,
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Rounded.Comment,
-                tint = colorScheme.onSurface,
-                contentDescription = stringResource(R.string.my_chats_button),
-            )
-        }
-
-        Column(
-            modifier = Modifier
-                .align(Alignment.CenterVertically)
-                .padding(end = spacing.small)
-                .weight(weight = 1f),
-        ) {
-            Text(
-                text = chatTitle ?: stringResource(R.string.new_chat_title),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold,
-                color = colorScheme.onSurface,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-
-            apiKeyName?.let {
-                Text(
-                    text = apiKeyName,
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+    ScreenHeader(
+        title = chatTitle ?: stringResource(R.string.new_chat_title),
+        subtitle = apiKeyName,
+        leadingIcon = {
+            IconButton(
+                onClick = onChatsClicked,
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Rounded.Comment,
+                    tint = colorScheme.onSurface,
+                    contentDescription = stringResource(R.string.my_chats_button),
+                )
+            }
+        },
+        trailingActions = {
+            IconButton(
+                onClick = onKeysClicked,
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Key,
+                    tint = colorScheme.onSurface,
+                    contentDescription = stringResource(R.string.my_keys_button),
                 )
             }
         }
-
-        IconButton(
-            onClick = onKeysClicked,
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.Key,
-                tint = colorScheme.onSurface,
-                contentDescription = stringResource(R.string.my_keys_button),
-            )
-        }
-
-        // TODO - For adjustment and maybe changing provider?
-//        IconButton(
-//            onClick = onKeysClicked,
-//        ) {
-//            Icon(
-//                imageVector = Icons.Rounded.Settings,
-//                tint = colorScheme.onSurface,
-//                contentDescription = stringResource(R.string.my_keys_button),
-//            )
-//        }
-    }
+    )
 }
 
 @Composable

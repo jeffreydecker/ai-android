@@ -22,7 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ApiKeyViewModel @Inject constructor(
     private val navigator: Navigator,
-    private val chatRepo: ChatRepository,
+    private val chatRepository: ChatRepository,
     savedStateHandle: SavedStateHandle,
     private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
@@ -44,7 +44,7 @@ class ApiKeyViewModel @Inject constructor(
         viewModelScope.launch {
             route.apiKeyId?.let { apiKeyId ->
                 // Existing key
-                chatRepo.getApiKey(apiKeyId)?.let { _apiKeyEntity.value = it }
+                chatRepository.getApiKey(apiKeyId)?.let { _apiKeyEntity.value = it }
                     ?: throw IllegalStateException("Api key not found")
 
                 _isDefaultKey.value = settingsRepository.getDefaultApiKeyId() == apiKeyId
@@ -99,7 +99,7 @@ class ApiKeyViewModel @Inject constructor(
 
         viewModelScope.launch {
             async {
-                chatRepo.createApiKey(apiKey = _apiKeyEntity.value)
+                chatRepository.createApiKey(apiKey = _apiKeyEntity.value)
                 if (_isDefaultKey.value) settingsRepository.setDefaultApiKeyId(_apiKeyEntity.value.id)
             }.await()
             navigator.goBack()
@@ -113,7 +113,7 @@ class ApiKeyViewModel @Inject constructor(
 
         viewModelScope.launch {
             async {
-                chatRepo.deleteApiKey(apiKey = _apiKeyEntity.value)
+                chatRepository.deleteApiKey(apiKey = _apiKeyEntity.value)
                 // If this is our default API key, clear it
                 if (settingsRepository.getDefaultApiKeyId() == _apiKeyEntity.value.id) {
                     settingsRepository.setDefaultApiKeyId(null)
