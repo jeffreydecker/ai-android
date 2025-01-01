@@ -52,6 +52,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.itsdecker.androidai.R
 import com.itsdecker.androidai.database.ApiKeyEntity
@@ -61,9 +62,9 @@ import com.itsdecker.androidai.network.ChatApiError
 import com.itsdecker.androidai.network.anthropic.ANTHROPIC_MESSENGER_ROLE_USER
 import com.itsdecker.androidai.screens.apikeyslist.ApiKeysList
 import com.itsdecker.androidai.screens.apikeyslist.ApiKeysListViewModel
-import com.itsdecker.androidai.screens.preview.ThemePreviews
 import com.itsdecker.androidai.screens.preview.apiKeyPreviewList
 import com.itsdecker.androidai.screens.preview.chatMessagesPreviewList
+import com.itsdecker.androidai.screens.shared.NoKeysWelcomeNotice
 import com.itsdecker.androidai.screens.shared.ScreenHeader
 import com.itsdecker.androidai.screens.shared.ScrollableContainer
 import com.itsdecker.androidai.ui.theme.AndroidaiTheme
@@ -130,7 +131,9 @@ fun ChatWindow(
             )
 
             ChatContent(
-                modifier = Modifier.weight(1f).fillMaxWidth(),
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
                 conversation = conversation,
                 apiKeys = apiKeys,
                 defaultApiKeyId = defaultApiKeyId,
@@ -138,7 +141,6 @@ fun ChatWindow(
                 onApiKeyClicked = onApiKeyClicked,
                 onAddApiKeyClicked = onAddApiKeyClicked,
                 onEditApiKeyClicked = onEditApiKeyClicked,
-                onApiKeySettingsClicked = onApiKeySettingsClicked,
             )
 
             error?.let { errorMessage -> ErrorMessage(errorMessage) }
@@ -165,7 +167,7 @@ fun ChatHeader(
                 Icon(
                     imageVector = Icons.AutoMirrored.Rounded.Comment,
                     tint = colorScheme.onSurface,
-                    contentDescription = stringResource(R.string.my_chats_button),
+                    contentDescription = stringResource(R.string.your_chats_button),
                 )
             }
         },
@@ -176,7 +178,7 @@ fun ChatHeader(
                 Icon(
                     imageVector = Icons.Rounded.Key,
                     tint = colorScheme.onSurface,
-                    contentDescription = stringResource(R.string.my_keys_button),
+                    contentDescription = stringResource(R.string.your_keys_button),
                 )
             }
         }
@@ -193,7 +195,6 @@ fun ChatContent(
     onApiKeyClicked: (apiKey: ApiKeyEntity) -> Unit,
     onAddApiKeyClicked: () -> Unit,
     onEditApiKeyClicked: (apiKey: ApiKeyEntity) -> Unit,
-    onApiKeySettingsClicked: () -> Unit,
 ) {
     // TODO - This is currently and easy way to keep chat scrolling. Longer term it would be nice
     //  to modify this to scroll to show the last the beginning of the latest response if it doesn't
@@ -230,7 +231,6 @@ fun ChatContent(
                 onApiKeyClicked = onApiKeyClicked,
                 onAddApiKeyClicked = onAddApiKeyClicked,
                 onApiKeyLongClicked = onEditApiKeyClicked,
-                onApiKeySettingsClicked = onApiKeySettingsClicked,
             )
         }
     }
@@ -245,7 +245,38 @@ private fun EmptyChatPlaceholder(
     onApiKeyClicked: (apiKey: ApiKeyEntity) -> Unit,
     onApiKeyLongClicked: (apiKey: ApiKeyEntity) -> Unit,
     onAddApiKeyClicked: () -> Unit,
-    onApiKeySettingsClicked: () -> Unit,
+) {
+    if (apiKeys.isEmpty()) {
+        Box(
+            modifier = modifier.padding(spacing.medium),
+        ) {
+            NoKeysWelcomeNotice(
+                modifier = Modifier.align(Alignment.Center),
+                onAddKeyClicked = onAddApiKeyClicked,
+            )
+        }
+    } else {
+        KeySelector(
+            modifier = modifier,
+            apiKeys = apiKeys,
+            defaultApiKeyId = defaultApiKeyId,
+            selectedApiKey = selectedApiKey,
+            onApiKeyClicked = onApiKeyClicked,
+            onApiKeyLongClicked = onApiKeyLongClicked,
+            onAddApiKeyClicked = onAddApiKeyClicked,
+        )
+    }
+}
+
+@Composable
+private fun KeySelector(
+    modifier: Modifier = Modifier,
+    apiKeys: List<ApiKeyEntity>,
+    defaultApiKeyId: String?,
+    selectedApiKey: ApiKeyEntity?,
+    onApiKeyClicked: (apiKey: ApiKeyEntity) -> Unit,
+    onApiKeyLongClicked: (apiKey: ApiKeyEntity) -> Unit,
+    onAddApiKeyClicked: () -> Unit,
 ) {
     Box(
         modifier = modifier,
@@ -254,30 +285,16 @@ private fun EmptyChatPlaceholder(
             modifier = Modifier.fillMaxHeight(),
             verticalArrangement = Arrangement.spacedBy(spacing.small)
         ) {
-            Row {
-                Text(
-                    text = "Your Api Keys",
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = colorScheme.onSurface,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier
-                        .padding(horizontal = spacing.medium)
-                        .align(Alignment.CenterVertically)
-                        .weight(1f),
-                )
+            Text(
+                text = "Your Api Keys",
+                style = MaterialTheme.typography.headlineSmall,
+                color = colorScheme.onSurface,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier
+                    .padding(horizontal = spacing.medium)
+                    .fillMaxWidth(),
+            )
 
-                IconButton(
-                    onClick = onApiKeySettingsClicked,
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Key,
-                        tint = colorScheme.onSurface,
-                        contentDescription = stringResource(R.string.my_keys_button),
-                    )
-                }
-            }
-
-            // TODO - If no keys show a getting started message
             ApiKeysList(
                 apiKeys = apiKeys,
                 defaultKeyId = defaultApiKeyId,
@@ -291,9 +308,10 @@ private fun EmptyChatPlaceholder(
                         ?.let { apiKey -> onApiKeyLongClicked(apiKey) }
                 },
                 modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
                     .clip(shape = RoundedCornerShape(cornerRadius.large))
                     .background(color = colorScheme.surfaceContainer)
-                    .fillMaxHeight()
             )
         }
 
@@ -333,6 +351,7 @@ private fun ChatInput(
             .padding(spacing.small),
         horizontalArrangement = Arrangement.spacedBy(spacing.small),
     ) {
+        // TODO - Disable me if no API keys
         TextField(
             value = prompt,
             onValueChange = { prompt = it },
@@ -447,7 +466,7 @@ fun ErrorMessage(error: ChatApiError) {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 fun ScreenPreviewWithChat() {
     AndroidaiTheme {
@@ -468,7 +487,7 @@ fun ScreenPreviewWithChat() {
     }
 }
 
-@ThemePreviews
+@PreviewLightDark
 @Composable
 fun ScreenPreviewWithKeys() {
     AndroidaiTheme {
@@ -477,6 +496,27 @@ fun ScreenPreviewWithKeys() {
             apiKeys = apiKeyPreviewList(),
             defaultApiKeyId = apiKeyPreviewList()[1].id,
             selectedApiKey = apiKeyPreviewList().first(),
+            isLoading = false,
+            error = null,
+            onSendMessage = {},
+            onChatsClicked = {},
+            onApiKeyClicked = {},
+            onAddApiKeyClicked = {},
+            onEditApiKeyClicked = {},
+            onApiKeySettingsClicked = {},
+        )
+    }
+}
+
+@PreviewLightDark
+@Composable
+fun ScreenPreviewNoKeys() {
+    AndroidaiTheme {
+        ChatWindow(
+            conversation = null,
+            apiKeys = emptyList(),
+            defaultApiKeyId = null,
+            selectedApiKey = null,
             isLoading = false,
             error = null,
             onSendMessage = {},

@@ -18,10 +18,15 @@ class Navigator @Inject constructor() {
         _navigationEvent.trySend(Event.NavigateTo(destination))
     }
 
+    fun navigateUptTo(destination: NavRoute) {
+        _navigationEvent.trySend(Event.NavigateUpTo(destination))
+    }
+
     fun goBack() = _navigationEvent.trySend(Event.GoBack)
 
     sealed interface Event {
         data class NavigateTo(val destination: NavRoute) : Event
+        data class NavigateUpTo(val destination: NavRoute) : Event
         data object GoBack : Event
     }
 }

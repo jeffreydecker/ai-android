@@ -4,7 +4,6 @@ import com.google.gson.Gson
 import com.itsdecker.androidai.BuildConfig
 import com.itsdecker.androidai.database.MessageEntity
 import com.itsdecker.androidai.network.ChatRole.Companion.toRole
-import com.itsdecker.androidai.network.deepseek.DEEP_SEEK_BASE_URL
 import com.itsdecker.androidai.network.deepseek.DEEP_SEEK_ROLE_ASSISTANT
 import com.itsdecker.androidai.network.deepseek.DEEP_SEEK_ROLE_USER
 import okhttp3.OkHttpClient
@@ -13,16 +12,21 @@ import retrofit2.HttpException
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 abstract class ChatApiClient constructor(
     baseUrl: String,
 ) {
 
+    companion object {
+        private const val ONE_MINUTE_TIMEOUT = 60L
+    }
+
     abstract suspend fun internalSendMessage(
         apiKey: String,
         conversationId: String,
         conversationHistory: List<MessageEntity>,
-    ) : MessageEntity?
+    ): MessageEntity?
 
     internal val retrofit = Retrofit.Builder()
         .baseUrl(baseUrl)
@@ -35,7 +39,11 @@ abstract class ChatApiClient constructor(
                     } else {
                         HttpLoggingInterceptor.Level.NONE
                     }
-                }).build()
+                })
+                .connectTimeout(ONE_MINUTE_TIMEOUT, TimeUnit.SECONDS)
+                .readTimeout(ONE_MINUTE_TIMEOUT, TimeUnit.SECONDS)
+                .writeTimeout(ONE_MINUTE_TIMEOUT, TimeUnit.SECONDS)
+                .build()
         ).build()
 
     suspend fun sendMessage(

@@ -24,6 +24,8 @@
     <string name="temperature_details">Higher values will make responses more creative where lower values might be better for tasks like coding or math. The default value is set to what is generally best for conversation.</string>
 
     // API Key Form
+    <string name="add_new_key">Add New Key</string>
+    <string name="update_key">Update %1$s</string>
     <string name="api_provider_field">API Key Provider</string>
     <string name="api_provider_details">Choose your API key provider</string>
     <string name="api_key_use_field">API Key Use Agreement</string>
@@ -53,24 +55,31 @@
     <string name="delete_confirmation_title">Delete %1$s</string>
     <string name="delete_confirmation_details">Are you sure you want to delete %1$s? This cannot be undone.</string>
 
+    // No Content
+    <string name="welcome_to_keys_ai">Welcome To Keys AI</string>
+    <string name="no_keys_details">You don\'t have any API keys saved. To get started add your first API key.</string>
+    <string name="add_first_key_button">Add Your First Key</string>
+    <string name="no_chats_details">You haven\'t started any chats. Start your first chat to start using your API keys.</string>
+    <string name="start_first_chat_button">Start Your First Chat</string>
+
     // Action Options
     <string name="cancel_option">Cancel</string>
     <string name="delete_option">Delete</string>
     <string name="save_option">Save</string>
+    <string name="close_option">Close</string>
     <string name="reset_to_default">Reset to Default</string>
 
     // Keys List
-    <string name="add_key_button">Add API Key</string>
-    <string name="my_keys_button">My Keys</string>
-    <string name="my_keys_title">My Keys</string>
+    <string name="add_key_button">Add New Key</string>
+    <string name="your_keys_button">Your Keys</string>
+    <string name="your_keys_title">Your Keys</string>
     <string name="default_key">Default</string>
 
     // Conversations List
-    <string name="untitled_conversation">Untitled Conversation</string>
     <string name="new_chat_button">New Chat</string>
     <string name="new_chat_title">New Chat</string>
-    <string name="my_chats_button">My Chats</string>
-    <string name="my_chats_title">My Chats</string>
+    <string name="your_chats_button">Your Chats</string>
+    <string name="your_chats_title">Your Chats</string>
     <string name="user_label">You</string>
 
     // Time

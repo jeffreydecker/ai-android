@@ -1,28 +1,23 @@
 package com.itsdecker.androidai.screens.conversations
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import com.itsdecker.androidai.data.respository.ChatRepository
-import com.itsdecker.androidai.data.respository.SettingsRepository
+import com.itsdecker.androidai.database.ApiKeyEntity
 import com.itsdecker.androidai.navigation.NavRoute
 import com.itsdecker.androidai.navigation.Navigator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ConversationsViewModel @Inject constructor(
-    private val chatRepository: ChatRepository,
+    chatRepository: ChatRepository,
     private val navigator: Navigator,
-    private val savedStateHandle: SavedStateHandle,
-    private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
-
-    private val navRoute = savedStateHandle.toRoute<NavRoute.Conversations>()
 
     val conversations = chatRepository
         .getAllConversations(apiKeyId = null)
@@ -32,8 +27,15 @@ class ConversationsViewModel @Inject constructor(
             initialValue = listOf(),
         )
 
+    val apiKeys: StateFlow<List<ApiKeyEntity>> = chatRepository.getAllApiKeys()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyList()
+        )
+
     fun goToConversation(conversationId: String, apiKeyId: String) {
-        navigator.navigateTo(
+        navigator.navigateUptTo(
             NavRoute.Chat(
                 apiKeyId = apiKeyId,
                 conversationId = conversationId,
@@ -42,16 +44,17 @@ class ConversationsViewModel @Inject constructor(
     }
 
     fun startNewConversation() = viewModelScope.launch {
-        val apiKeyId = navRoute.apiKeyId ?: settingsRepository.getDefaultApiKeyId()
-        apiKeyId?.let {
-            chatRepository.createConversation(
-                apiKeyId = it,
-            ).let { conversation ->
-                goToConversation(
-                    conversationId = conversation.conversation.id,
-                    apiKeyId = apiKeyId,
-                )
-            }
-        }
+        navigator.navigateUptTo(
+            NavRoute.Chat(
+                apiKeyId = null,
+                conversationId = null,
+            )
+        )
     }
+
+    fun goToAddKey() = navigator.navigateTo(NavRoute.ApiKeyForm(apiKeyId = null))
+
+    fun goToKeys() = navigator.navigateTo(NavRoute.ApiKeys)
+
+    fun goBack() = navigator.goBack()
 }

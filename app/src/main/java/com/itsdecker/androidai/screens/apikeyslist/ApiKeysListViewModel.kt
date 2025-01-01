@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ApiKeysListViewModel @Inject constructor(
-    private val chatRepository: ChatRepository,
+    chatRepository: ChatRepository,
     private val navigator: Navigator,
     private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
@@ -42,11 +42,9 @@ class ApiKeysListViewModel @Inject constructor(
         }
     }
 
-    fun setKeyAsDefault(apiKey: ApiKeyEntity) = viewModelScope.launch {
-        settingsRepository.setDefaultApiKeyId(apiKeyId = apiKey.id)
-    }
-
-    fun goToChat(apiKeyId: String) = navigator.navigateTo(NavRoute.Conversations(apiKeyId = apiKeyId))
     fun goToEditKey(apiKeyId: String) = navigator.navigateTo(NavRoute.ApiKeyForm(apiKeyId = apiKeyId))
+
     fun goToAddKey() = navigator.navigateTo(NavRoute.ApiKeyForm(apiKeyId = null))
+
+    fun goBack() = navigator.goBack()
 }

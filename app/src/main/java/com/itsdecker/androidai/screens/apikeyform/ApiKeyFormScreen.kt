@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -18,12 +19,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Cancel
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Save
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,10 +43,12 @@ import com.itsdecker.androidai.R
 import com.itsdecker.androidai.data.SUPPORTED_PROVIDERS
 import com.itsdecker.androidai.data.SupportedProvider
 import com.itsdecker.androidai.database.ApiKeyEntity
+import com.itsdecker.androidai.screens.preview.apiKeyEntityPreview
 import com.itsdecker.androidai.screens.shared.DeleteConfirmationDialog
 import com.itsdecker.androidai.screens.shared.FormField
 import com.itsdecker.androidai.screens.shared.FormSubcontentText
 import com.itsdecker.androidai.screens.shared.FormTextInput
+import com.itsdecker.androidai.screens.shared.ScreenHeader
 import com.itsdecker.androidai.screens.shared.ScrollableContainer
 import com.itsdecker.androidai.ui.theme.AndroidaiTheme
 import com.itsdecker.androidai.ui.theme.Typography
@@ -105,6 +110,24 @@ fun ApiKeyFormScreen(
                 .background(color = colorScheme.surface)
                 .systemBarsPadding()
         ) {
+            ScreenHeader(
+                title = if (isExistingKey) {
+                    stringResource(R.string.update_key, apiKeyEntity.name)
+                } else stringResource(R.string.add_new_key),
+                subtitle = null,
+                leadingIcon = {
+                    IconButton(
+                        onClick = onCancelClick
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Close,
+                            contentDescription = stringResource(R.string.close_option),
+                            tint = colorScheme.onSurface,
+                        )
+                    }
+                }
+            )
+
             ApiKeyFields(
                 modifier = Modifier.weight(1f),
                 isExistingKey = isExistingKey,
@@ -268,6 +291,7 @@ fun ApiKeyButtons(
 ) {
     Row(
         modifier = Modifier
+            .navigationBarsPadding()
             .fillMaxWidth()
             .padding(all = spacing.default),
         horizontalArrangement = Arrangement.spacedBy(spacing.default),
@@ -395,12 +419,7 @@ fun FormFieldProviderChips(
 fun TextInputPreview() {
     AndroidaiTheme {
         ApiKeyFormScreen(
-            apiKeyEntity = ApiKeyEntity(
-                name = stringResource(R.string.api_key_name_default, "DeepSeek"),
-                description = stringResource(R.string.api_key_description_default, "DeepSeek"),
-                apiKey = "fake-api-key",
-                chatModel = SupportedProvider.DeepSeek,
-            ),
+            apiKeyEntity = apiKeyEntityPreview(),
             isDefaultKey = true,
             isExistingKey = true,
             userAgreementChecked = true,
