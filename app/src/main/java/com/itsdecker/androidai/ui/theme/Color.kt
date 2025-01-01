@@ -16,6 +16,7 @@ val GeminiBrand = Color(0xFF4796E3)
 val GeminiBrandPurple = Color(0xFF9177C7)
 val GeminiBrandRed = Color(0xFFCA6673)
 val DeepSeekBrand = Color(0xFF4D6BFE)
+val OpenRouterBrand = Color(0xFF6566F1)
 
 val OpacW10 = Color(0x1AFFFFFF)
 val OpacW20 = Color(0x33FFFFFF)

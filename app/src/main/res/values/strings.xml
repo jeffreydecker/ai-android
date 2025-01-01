@@ -21,7 +21,10 @@
 
     // Conversation Form
     <string name="temperature_field">Temperature</string>
-    <string name="temperature_details">Higher values will make responses more creative where lower values might be better for tasks like coding or math. The default value is set to what is generally best for conversation.</string>
+    <string name="temperature_details">
+        Higher values will make responses more creative where lower values might be better for tasks
+        like coding or math. The default value is set to what is generally best for conversation.
+    </string>
 
     // API Key Form
     <string name="add_new_key">Add New Key</string>
@@ -46,10 +49,18 @@
     <string name="api_key_description_details">Describe the purpose of this API Key</string>
     <string name="api_key_description_default">General purpose %1$s API key</string>
     <string name="api_key_field">API Key</string>
-    <string name="api_key_details">Your %1$s API Key</string>
-    <string name="api_key_help_link">To obtain an API key from %1$s tap this link. Note that this key will not be shown again. Please make sure to store it in a safe location.</string>
+    <string name="api_key_details">Your API Key</string>
+    <string name="api_key_help_link">
+        After this key is saved it will not be shown again. Please make sure to store it in a safe
+        location.
+        \nTo obtain an API key tap the link below to go to the providers website.
+    </string>
+    <string name="get_api_key_button">Get API Key</string>
     <string name="default_key_field">Default Key</string>
-    <string name="default_key_details">When you start a new chat this key will be selected by default. If this is your first key it will automatically be made default.</string>
+    <string name="default_key_details">
+        When you start a new chat this key will be selected by default. If this is your first key it
+        will automatically be made default.
+    </string>
 
     // Delete Confirmation
     <string name="delete_confirmation_title">Delete %1$s</string>

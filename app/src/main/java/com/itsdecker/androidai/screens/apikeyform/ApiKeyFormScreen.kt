@@ -14,10 +14,12 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material.icons.rounded.Cancel
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Delete
@@ -29,12 +31,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -234,7 +239,7 @@ fun ApiKeyFields(
             // API Key
             FormField(
                 title = stringResource(R.string.api_key_field),
-                details = stringResource(R.string.api_key_details, "DeepSeek"),
+                details = stringResource(R.string.api_key_details),
                 fieldView = {
                     FormTextInput(
                         modifier = Modifier.fillMaxWidth(),
@@ -246,9 +251,7 @@ fun ApiKeyFields(
                     )
                 },
                 subContentView = {
-                    FormSubcontentText(
-                        text = stringResource(R.string.api_key_help_link, "DeepSeek"),
-                    )
+                    ApiKeyLink(linkText = apiKeyEntity.chatModel.apiKeyLink)
                 }
             )
 
@@ -410,6 +413,36 @@ fun FormFieldProviderChips(
                     color = contentColor,
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun ApiKeyLink(
+    linkText: String,
+) {
+    val uriHandler = LocalUriHandler.current
+    Column(
+        modifier = Modifier.wrapContentSize()
+    ) {
+        FormSubcontentText(
+            text = stringResource(R.string.api_key_help_link),
+        )
+        TextButton(
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            onClick = {
+                uriHandler.openUri(linkText)
+            },
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Rounded.OpenInNew,
+                contentDescription = stringResource(R.string.get_api_key_button),
+            )
+            Spacer(modifier = Modifier.size(spacing.small))
+            Text(
+                text = stringResource(R.string.get_api_key_button),
+            )
+
         }
     }
 }
