@@ -1,6 +1,5 @@
 package com.itsdecker.androidai.screens.shared
 
-import android.media.SubtitleData
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,11 +8,6 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.Comment
-import androidx.compose.material.icons.rounded.Key
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +22,7 @@ import com.itsdecker.androidai.ui.theme.spacing
 fun ScreenHeader(
     title: String?,
     subtitle: String?,
+    subtitleIcon: (@Composable RowScope.() -> Unit)? = null,
     leadingIcon: (@Composable RowScope.() -> Unit)? = null,
     trailingActions: (@Composable RowScope.() -> Unit)? = null,
 ) {
@@ -60,14 +55,22 @@ fun ScreenHeader(
             }
 
             subtitle?.let {
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(spacing.extraSmall)
+                ) {
+                    subtitleIcon?.let {
+                        subtitleIcon()
+                    }
+                    Text(
+                        modifier = Modifier.align(alignment = Alignment.CenterVertically),
+                        text = subtitle,
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
             }
         }
 

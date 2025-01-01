@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -50,6 +51,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -59,11 +61,12 @@ import com.itsdecker.androidai.database.ApiKeyEntity
 import com.itsdecker.androidai.database.ConversationWithMessages
 import com.itsdecker.androidai.database.MessageEntity
 import com.itsdecker.androidai.network.ChatApiError
-import com.itsdecker.androidai.network.anthropic.ANTHROPIC_MESSENGER_ROLE_USER
+import com.itsdecker.androidai.network.ChatRole
 import com.itsdecker.androidai.screens.apikeyslist.ApiKeysList
 import com.itsdecker.androidai.screens.apikeyslist.ApiKeysListViewModel
 import com.itsdecker.androidai.screens.preview.apiKeyPreviewList
 import com.itsdecker.androidai.screens.preview.chatMessagesPreviewList
+import com.itsdecker.androidai.screens.shared.LoadingDots
 import com.itsdecker.androidai.screens.shared.NoKeysWelcomeNotice
 import com.itsdecker.androidai.screens.shared.ScreenHeader
 import com.itsdecker.androidai.screens.shared.ScrollableContainer
@@ -125,7 +128,7 @@ fun ChatWindow(
         ) {
             ChatHeader(
                 chatTitle = conversation?.conversation?.title,
-                apiKeyName = selectedApiKey?.name,
+                apiKeyEntity = selectedApiKey,
                 onChatsClicked = onChatsClicked,
                 onKeysClicked = onApiKeySettingsClicked,
             )
@@ -138,6 +141,7 @@ fun ChatWindow(
                 apiKeys = apiKeys,
                 defaultApiKeyId = defaultApiKeyId,
                 selectedApiKey = selectedApiKey,
+                isLoading = isLoading,
                 onApiKeyClicked = onApiKeyClicked,
                 onAddApiKeyClicked = onAddApiKeyClicked,
                 onEditApiKeyClicked = onEditApiKeyClicked,
@@ -153,13 +157,23 @@ fun ChatWindow(
 @Composable
 fun ChatHeader(
     chatTitle: String?,
-    apiKeyName: String?,
+    apiKeyEntity: ApiKeyEntity?,
     onChatsClicked: () -> Unit,
     onKeysClicked: () -> Unit,
 ) {
     ScreenHeader(
         title = chatTitle ?: stringResource(R.string.new_chat_title),
-        subtitle = apiKeyName,
+        subtitle = apiKeyEntity?.name,
+        subtitleIcon = apiKeyEntity?.let {
+            {
+                Icon(
+                    modifier = Modifier.size(16.dp),
+                    painter = painterResource(apiKeyEntity.chatModel.icon),
+                    contentDescription = null,
+                    tint = apiKeyEntity.chatModel.brandColor,
+                )
+            }
+        },
         leadingIcon = {
             IconButton(
                 onClick = onChatsClicked,
@@ -192,6 +206,7 @@ fun ChatContent(
     apiKeys: List<ApiKeyEntity>,
     defaultApiKeyId: String?,
     selectedApiKey: ApiKeyEntity?,
+    isLoading: Boolean,
     onApiKeyClicked: (apiKey: ApiKeyEntity) -> Unit,
     onAddApiKeyClicked: () -> Unit,
     onEditApiKeyClicked: (apiKey: ApiKeyEntity) -> Unit,
@@ -217,6 +232,12 @@ fun ChatContent(
             ) {
                 items(conversation.messages) { message ->
                     ChatBubble(message)
+                }
+
+                if (isLoading) {
+                    item {
+                        LoadingDots(modifier = Modifier.padding(start = spacing.tiny))
+                    }
                 }
             }
         } else {
@@ -351,7 +372,6 @@ private fun ChatInput(
             .padding(spacing.small),
         horizontalArrangement = Arrangement.spacedBy(spacing.small),
     ) {
-        // TODO - Disable me if no API keys
         TextField(
             value = prompt,
             onValueChange = { prompt = it },
@@ -374,7 +394,7 @@ private fun ChatInput(
                 sendMessage(prompt)
                 prompt = ""
             },
-            enabled = !isLoading,
+            enabled = !isLoading && prompt.isNotEmpty(),
             modifier = Modifier.align(Alignment.CenterVertically)
         ) {
             Icon(
@@ -388,7 +408,7 @@ private fun ChatInput(
 
 @Composable
 private fun ChatBubble(message: MessageEntity) {
-    val isUser = message.role == ANTHROPIC_MESSENGER_ROLE_USER
+    val isUser = message.role == ChatRole.User.value
     val (backgroundColor, itemPadding) = when (isUser) {
         true -> colorScheme.surfaceContainerHigh to spacing.small
         false -> colorScheme.surface to spacing.none
@@ -472,10 +492,10 @@ fun ScreenPreviewWithChat() {
     AndroidaiTheme {
         ChatWindow(
             conversation = chatMessagesPreviewList(),
-            apiKeys = emptyList(),
-            defaultApiKeyId = null,
-            selectedApiKey = null,
-            isLoading = false,
+            apiKeys = apiKeyPreviewList(),
+            defaultApiKeyId = apiKeyPreviewList()[1].id,
+            selectedApiKey = apiKeyPreviewList().first(),
+            isLoading = true,
             error = ChatApiError.InvalidRequest(message = "Shit went down"),
             onSendMessage = {},
             onChatsClicked = {},

@@ -38,7 +38,6 @@ class ChatViewModel @Inject constructor(
     private val _selectedApiKey = MutableStateFlow<ApiKeyEntity?>(null)
     val selectedApiKey = _selectedApiKey.asStateFlow()
 
-    // TODO - Use this for better UX
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
 
