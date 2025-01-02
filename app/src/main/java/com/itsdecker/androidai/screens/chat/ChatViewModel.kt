@@ -91,6 +91,10 @@ class ChatViewModel @Inject constructor(
         navigator.navigateTo(NavRoute.Conversations())
     }
 
+    fun startNewChat() {
+        navigator.navigateUptTo(NavRoute.Chat(apiKeyId = null, conversationId = null))
+    }
+
     fun updateSelectedApiKey(selectedApiKey: ApiKeyEntity) {
         _selectedApiKey.value = selectedApiKey
 

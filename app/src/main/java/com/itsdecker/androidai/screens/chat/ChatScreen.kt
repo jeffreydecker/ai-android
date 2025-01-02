@@ -25,6 +25,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Comment
 import androidx.compose.material.icons.automirrored.rounded.Send
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.AddComment
 import androidx.compose.material.icons.rounded.CloudOff
 import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.Error
@@ -63,6 +64,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.itsdecker.androidai.R
 import com.itsdecker.androidai.database.ApiKeyEntity
+import com.itsdecker.androidai.database.ConversationEntity
 import com.itsdecker.androidai.database.ConversationWithMessages
 import com.itsdecker.androidai.database.MessageEntity
 import com.itsdecker.androidai.network.ChatApiError
@@ -110,6 +112,7 @@ fun ChatScreen(
         onApiKeySettingsClicked = viewModel::goToApiKeySettings,
         onSaveChatName = viewModel::updateChatName,
         onDeleteChatConfirmed = viewModel::deleteChat,
+        onNewChatClicked = viewModel::startNewChat,
     )
 }
 
@@ -129,6 +132,7 @@ fun ChatScreen(
     onApiKeySettingsClicked: () -> Unit,
     onSaveChatName: (chatName: String) -> Unit,
     onDeleteChatConfirmed: () -> Unit,
+    onNewChatClicked: () -> Unit,
 ) {
     val showBottomSheet = remember { mutableStateOf(false) }
 
@@ -141,9 +145,10 @@ fun ChatScreen(
                 .background(color = colorScheme.surface),
         ) {
             ChatHeader(
-                chatTitle = conversation?.conversation?.title,
+                conversationEntity = conversation?.conversation,
                 apiKeyEntity = selectedApiKey,
                 onChatsClicked = onChatsClicked,
+                onNewChatClicked = onNewChatClicked,
                 onSettingsClicked = { showBottomSheet.value = true },
             )
 
@@ -184,12 +189,13 @@ fun ChatScreen(
 
 @Composable
 fun ChatHeader(
-    chatTitle: String?,
+    conversationEntity: ConversationEntity?,
     apiKeyEntity: ApiKeyEntity?,
     onChatsClicked: () -> Unit,
+    onNewChatClicked: () -> Unit,
     onSettingsClicked: () -> Unit,
 ) {
-    ScreenHeader(title = chatTitle ?: stringResource(R.string.new_chat_title),
+    ScreenHeader(title = conversationEntity?.title ?: stringResource(R.string.new_chat_title),
         subtitle = apiKeyEntity?.name,
         subtitleIcon = apiKeyEntity?.let {
             {
@@ -213,16 +219,33 @@ fun ChatHeader(
             }
         },
         trailingActions = {
-            IconButton(
-                onClick = onSettingsClicked,
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.Settings,
-                    tint = colorScheme.onSurface,
-                    contentDescription = stringResource(R.string.settings),
-                )
+            if (conversationEntity != null) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(spacing.small)
+                ) {
+                    IconButton(
+                        onClick = onNewChatClicked,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.AddComment,
+                            tint = colorScheme.onSurface,
+                            contentDescription = stringResource(R.string.new_chat_button),
+                        )
+                    }
+
+                    IconButton(
+                        onClick = onSettingsClicked,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Settings,
+                            tint = colorScheme.onSurface,
+                            contentDescription = stringResource(R.string.settings),
+                        )
+                    }
+                }
             }
-        })
+        }
+    )
 }
 
 @Composable
@@ -272,7 +295,7 @@ fun ChatContent(
                 modifier = Modifier
                     .align(Alignment.Center)
                     .padding(spacing.medium)
-                    .fillMaxHeight(0.5f),
+                    .fillMaxHeight(0.7f),
                 apiKeys = apiKeys,
                 defaultApiKeyId = defaultApiKeyId,
                 selectedApiKey = selectedApiKey,
@@ -641,6 +664,7 @@ fun ScreenPreviewWithChat() {
             onApiKeySettingsClicked = {},
             onSaveChatName = {},
             onDeleteChatConfirmed = {},
+            onNewChatClicked = {},
         )
     }
 }
@@ -664,6 +688,7 @@ fun ScreenPreviewWithKeys() {
             onApiKeySettingsClicked = {},
             onSaveChatName = {},
             onDeleteChatConfirmed = {},
+            onNewChatClicked = {},
         )
     }
 }
@@ -687,6 +712,7 @@ fun ScreenPreviewNoKeys() {
             onApiKeySettingsClicked = {},
             onSaveChatName = {},
             onDeleteChatConfirmed = {},
+            onNewChatClicked = {},
         )
     }
 }
