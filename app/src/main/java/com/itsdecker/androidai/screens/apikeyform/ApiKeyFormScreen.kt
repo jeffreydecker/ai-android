@@ -430,9 +430,8 @@ fun ApiKeyLink(
         )
         TextButton(
             modifier = Modifier.align(Alignment.CenterHorizontally),
-            onClick = {
-                uriHandler.openUri(linkText)
-            },
+            enabled = linkText.isNotBlank(),
+            onClick = { uriHandler.openUri(linkText) },
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Rounded.OpenInNew,

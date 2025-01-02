@@ -37,7 +37,7 @@ class SettingsRepository @Inject constructor(
             }
     }
 
-    fun observeDefaultApiKey(): Flow<String?> = defaultApiKeyId
+    fun defaultApiKeyId(): Flow<String?> = defaultApiKeyId
 
     suspend fun setDefaultApiKeyId(apiKeyId: String?) = withContext(Dispatchers.IO) {
         dataStore.updateData { preferences ->

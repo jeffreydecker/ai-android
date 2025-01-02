@@ -18,6 +18,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -45,6 +46,7 @@ class ChatViewModel @Inject constructor(
     val error = _error.asStateFlow()
 
     init {
+        // Set the initial selected key and conversation based on the route params
         viewModelScope.launch(context = Dispatchers.IO) {
             when (chatRoute.conversationId) {
                 null -> {
@@ -60,6 +62,18 @@ class ChatViewModel @Inject constructor(
                                 it?.conversation?.apiKeyId ?: apiKeyIdFromRouteOrDefault()
                             _selectedApiKey.value = chatRepository.getApiKey(apiKeyId = apiKeyId)
                         }
+                }
+            }
+        }
+
+        // TODO - It might make sense to just move some things from list view model here
+        //  instead of doing this and adding an onEach{} instead.
+        // Observe changes to the default api key ignoring the initial value to make sure that
+        // changes to the default api key is selected for empty chats.
+        viewModelScope.launch {
+            settingsRepository.defaultApiKeyId().drop(1).collect { defaultApiKeyId ->
+                if (_conversation.value == null && defaultApiKeyId != null) {
+                    _selectedApiKey.value = chatRepository.getApiKey(apiKeyId = defaultApiKeyId)
                 }
             }
         }
@@ -81,8 +95,10 @@ class ChatViewModel @Inject constructor(
         _selectedApiKey.value = selectedApiKey
 
         _conversation.value?.let { thisConversationWithMessages ->
-            val updatedConversation = thisConversationWithMessages.conversation.copy(apiKeyId = selectedApiKey.id)
-            _conversation.value = thisConversationWithMessages.copy(conversation = updatedConversation)
+            val updatedConversation =
+                thisConversationWithMessages.conversation.copy(apiKeyId = selectedApiKey.id)
+            _conversation.value =
+                thisConversationWithMessages.copy(conversation = updatedConversation)
             viewModelScope.launch {
                 chatRepository.updateConversation(updatedConversation)
             }
@@ -130,7 +146,8 @@ class ChatViewModel @Inject constructor(
     fun updateChatName(name: String) {
         _conversation.value?.let { thisConversationWithMessages ->
             val updatedConversation = thisConversationWithMessages.conversation.copy(title = name)
-            _conversation.value = thisConversationWithMessages.copy(conversation = updatedConversation)
+            _conversation.value =
+                thisConversationWithMessages.copy(conversation = updatedConversation)
             viewModelScope.launch {
                 chatRepository.updateConversation(updatedConversation)
             }

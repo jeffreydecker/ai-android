@@ -28,7 +28,7 @@ class ApiKeysListViewModel @Inject constructor(
             initialValue = emptyList()
         )
 
-    val defaultApiKeyId = settingsRepository.observeDefaultApiKey()
+    val defaultApiKeyId = settingsRepository.defaultApiKeyId()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
