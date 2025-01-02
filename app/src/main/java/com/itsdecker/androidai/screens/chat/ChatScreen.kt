@@ -8,9 +8,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -21,6 +23,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Comment
 import androidx.compose.material.icons.automirrored.rounded.Send
@@ -56,6 +59,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.itsdecker.androidai.R
@@ -74,6 +78,7 @@ import com.itsdecker.androidai.screens.shared.components.LoadingDots
 import com.itsdecker.androidai.screens.shared.components.NoKeysWelcomeNotice
 import com.itsdecker.androidai.screens.shared.components.ScreenHeader
 import com.itsdecker.androidai.screens.shared.components.ScrollableContainer
+import com.itsdecker.androidai.screens.shared.modifiers.dynamicNavigationBarPadding
 import com.itsdecker.androidai.ui.theme.AndroidaiTheme
 import com.itsdecker.androidai.ui.theme.colorScheme
 import com.itsdecker.androidai.ui.theme.cornerRadius
@@ -289,6 +294,7 @@ fun ChatContent(
                 modifier = Modifier
                     .align(Alignment.Center)
                     .padding(spacing.medium)
+                    .widthIn(0.dp, 500.dp)
                     .fillMaxHeight(0.7f),
                 apiKeys = apiKeys,
                 defaultApiKeyId = defaultApiKeyId,
@@ -426,13 +432,14 @@ private fun ChatInput(
                     topEnd = cornerRadius.large,
                 )
             )
-            .navigationBarsPadding()
+            .dynamicNavigationBarPadding()
             .padding(spacing.small),
         horizontalArrangement = Arrangement.spacedBy(spacing.small),
     ) {
         TextField(value = prompt,
             onValueChange = { prompt = it },
             modifier = Modifier.weight(1f),
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
             colors = TextFieldDefaults.colors().copy(
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,

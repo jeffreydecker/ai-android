@@ -58,8 +58,8 @@ class ChatViewModel @Inject constructor(
                     _conversation.value = chatRepository
                         .getConversation(conversationId = chatRoute.conversationId)
                         .also {
-                            val apiKeyId =
-                                it?.conversation?.apiKeyId ?: apiKeyIdFromRouteOrDefault()
+                            // TODO - If the API key is gone, make the user select a new one
+                            val apiKeyId = it?.conversation?.apiKeyId ?: apiKeyIdFromRouteOrDefault()
                             _selectedApiKey.value = chatRepository.getApiKey(apiKeyId = apiKeyId)
                         }
                 }
