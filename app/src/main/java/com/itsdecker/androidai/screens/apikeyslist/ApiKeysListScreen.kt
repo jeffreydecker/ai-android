@@ -253,7 +253,7 @@ fun AddApiKeyButton(
 @Composable
 private fun getSelectedItemColors(): ListItemColors =
     ListItemDefaults.colors(
-        containerColor = colorScheme.surfaceContainerLow,
+        containerColor = colorScheme.surfaceContainerHigh,
     )
 
 @Composable

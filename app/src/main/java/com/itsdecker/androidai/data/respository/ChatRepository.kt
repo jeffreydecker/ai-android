@@ -71,16 +71,8 @@ class ChatRepository @Inject constructor(
         conversationDao.updateConversation(conversation)
     }
 
-    suspend fun deleteConversation(
-        conversationId: String,
-        apiKeyId: String,
-    ) = withContext(Dispatchers.IO) {
-        conversationDao.deleteConversation(
-            ConversationEntity(
-                id = conversationId,
-                apiKeyId = apiKeyId
-            )
-        )
+    suspend fun deleteConversation(conversation: ConversationEntity,) = withContext(Dispatchers.IO) {
+        conversationDao.deleteConversation(conversation)
     }
 
     // Messages

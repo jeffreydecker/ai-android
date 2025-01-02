@@ -30,16 +30,20 @@ import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.Error
 import androidx.compose.material.icons.rounded.Key
 import androidx.compose.material.icons.rounded.Lock
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material.icons.rounded.WifiOff
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -56,6 +60,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import com.itsdecker.androidai.R
 import com.itsdecker.androidai.database.ApiKeyEntity
 import com.itsdecker.androidai.database.ConversationWithMessages
@@ -66,8 +71,11 @@ import com.itsdecker.androidai.screens.apikeyslist.ApiKeysList
 import com.itsdecker.androidai.screens.apikeyslist.ApiKeysListViewModel
 import com.itsdecker.androidai.screens.preview.apiKeyPreviewList
 import com.itsdecker.androidai.screens.preview.chatMessagesPreviewList
+import com.itsdecker.androidai.screens.shared.ConversationSettingsBottomSheet
+import com.itsdecker.androidai.screens.shared.DeleteConfirmationDialog
 import com.itsdecker.androidai.screens.shared.LoadingDots
 import com.itsdecker.androidai.screens.shared.NoKeysWelcomeNotice
+import com.itsdecker.androidai.screens.shared.RenameDialog
 import com.itsdecker.androidai.screens.shared.ScreenHeader
 import com.itsdecker.androidai.screens.shared.ScrollableContainer
 import com.itsdecker.androidai.ui.theme.AndroidaiTheme
@@ -87,7 +95,7 @@ fun ChatScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
 
-    ChatWindow(
+    ChatScreen(
         conversation = conversation,
         apiKeys = apiKeys,
         defaultApiKeyId = defaultApiKeyId,
@@ -100,11 +108,13 @@ fun ChatScreen(
         onAddApiKeyClicked = viewModel::goToAddApiKey,
         onEditApiKeyClicked = { apiKeyEntity -> apiKeysListViewModel.goToEditKey(apiKeyEntity.id) },
         onApiKeySettingsClicked = viewModel::goToApiKeySettings,
+        onSaveChatName = viewModel::updateChatName,
+        onDeleteChatConfirmed = viewModel::deleteChat,
     )
 }
 
 @Composable
-fun ChatWindow(
+fun ChatScreen(
     conversation: ConversationWithMessages?,
     apiKeys: List<ApiKeyEntity>,
     defaultApiKeyId: String?,
@@ -117,7 +127,11 @@ fun ChatWindow(
     onAddApiKeyClicked: () -> Unit,
     onEditApiKeyClicked: (apiKey: ApiKeyEntity) -> Unit,
     onApiKeySettingsClicked: () -> Unit,
+    onSaveChatName: (chatName: String) -> Unit,
+    onDeleteChatConfirmed: () -> Unit,
 ) {
+    val showBottomSheet = remember { mutableStateOf(false) }
+
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -130,7 +144,7 @@ fun ChatWindow(
                 chatTitle = conversation?.conversation?.title,
                 apiKeyEntity = selectedApiKey,
                 onChatsClicked = onChatsClicked,
-                onKeysClicked = onApiKeySettingsClicked,
+                onSettingsClicked = { showBottomSheet.value = true },
             )
 
             ChatContent(
@@ -145,6 +159,7 @@ fun ChatWindow(
                 onApiKeyClicked = onApiKeyClicked,
                 onAddApiKeyClicked = onAddApiKeyClicked,
                 onEditApiKeyClicked = onEditApiKeyClicked,
+                onApiKeySettingsClicked = onApiKeySettingsClicked,
             )
 
             error?.let { errorMessage -> ErrorMessage(errorMessage) }
@@ -152,6 +167,19 @@ fun ChatWindow(
             ChatInput(isLoading, onSendMessage)
         }
     }
+
+    ConversationSettings(
+        conversation = conversation,
+        apiKeys = apiKeys,
+        defaultApiKeyId = defaultApiKeyId,
+        selectedApiKey = selectedApiKey,
+        showBottomSheet = showBottomSheet.value,
+        onApiKeyClicked = onApiKeyClicked,
+        onEditApiKeyClicked = onEditApiKeyClicked,
+        onSaveChatName = onSaveChatName,
+        onDeleteChatConfirmed = onDeleteChatConfirmed,
+        onHideBottomSheet = { showBottomSheet.value = false },
+    )
 }
 
 @Composable
@@ -159,10 +187,9 @@ fun ChatHeader(
     chatTitle: String?,
     apiKeyEntity: ApiKeyEntity?,
     onChatsClicked: () -> Unit,
-    onKeysClicked: () -> Unit,
+    onSettingsClicked: () -> Unit,
 ) {
-    ScreenHeader(
-        title = chatTitle ?: stringResource(R.string.new_chat_title),
+    ScreenHeader(title = chatTitle ?: stringResource(R.string.new_chat_title),
         subtitle = apiKeyEntity?.name,
         subtitleIcon = apiKeyEntity?.let {
             {
@@ -187,16 +214,15 @@ fun ChatHeader(
         },
         trailingActions = {
             IconButton(
-                onClick = onKeysClicked,
+                onClick = onSettingsClicked,
             ) {
                 Icon(
-                    imageVector = Icons.Rounded.Key,
+                    imageVector = Icons.Rounded.Settings,
                     tint = colorScheme.onSurface,
-                    contentDescription = stringResource(R.string.your_keys_button),
+                    contentDescription = stringResource(R.string.settings),
                 )
             }
-        }
-    )
+        })
 }
 
 @Composable
@@ -210,8 +236,9 @@ fun ChatContent(
     onApiKeyClicked: (apiKey: ApiKeyEntity) -> Unit,
     onAddApiKeyClicked: () -> Unit,
     onEditApiKeyClicked: (apiKey: ApiKeyEntity) -> Unit,
+    onApiKeySettingsClicked: () -> Unit,
 ) {
-    // TODO - This is currently and easy way to keep chat scrolling. Longer term it would be nice
+    // TODO - This is currently an easy way to keep chat scrolling. Longer term it would be nice
     //  to modify this to scroll to show the last the beginning of the latest response if it doesn't
     //  fit within the chat window. This is pretty easy to do with a naive approach but might be fun
     //  to tackle as a more complex task.
@@ -252,6 +279,7 @@ fun ChatContent(
                 onApiKeyClicked = onApiKeyClicked,
                 onAddApiKeyClicked = onAddApiKeyClicked,
                 onApiKeyLongClicked = onEditApiKeyClicked,
+                onApiKeySettingsClicked = onApiKeySettingsClicked,
             )
         }
     }
@@ -266,6 +294,7 @@ private fun EmptyChatPlaceholder(
     onApiKeyClicked: (apiKey: ApiKeyEntity) -> Unit,
     onApiKeyLongClicked: (apiKey: ApiKeyEntity) -> Unit,
     onAddApiKeyClicked: () -> Unit,
+    onApiKeySettingsClicked: () -> Unit,
 ) {
     if (apiKeys.isEmpty()) {
         Box(
@@ -285,6 +314,7 @@ private fun EmptyChatPlaceholder(
             onApiKeyClicked = onApiKeyClicked,
             onApiKeyLongClicked = onApiKeyLongClicked,
             onAddApiKeyClicked = onAddApiKeyClicked,
+            onApiKeySettingsClicked = onApiKeySettingsClicked,
         )
     }
 }
@@ -298,6 +328,7 @@ private fun KeySelector(
     onApiKeyClicked: (apiKey: ApiKeyEntity) -> Unit,
     onApiKeyLongClicked: (apiKey: ApiKeyEntity) -> Unit,
     onAddApiKeyClicked: () -> Unit,
+    onApiKeySettingsClicked: () -> Unit,
 ) {
     Box(
         modifier = modifier,
@@ -306,15 +337,26 @@ private fun KeySelector(
             modifier = Modifier.fillMaxHeight(),
             verticalArrangement = Arrangement.spacedBy(spacing.small)
         ) {
-            Text(
-                text = "Your Api Keys",
-                style = MaterialTheme.typography.headlineSmall,
-                color = colorScheme.onSurface,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier
-                    .padding(horizontal = spacing.medium)
-                    .fillMaxWidth(),
-            )
+            Row {
+                Text(
+                    text = stringResource(R.string.your_keys_title),
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = colorScheme.onSurface,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier
+                        .padding(horizontal = spacing.medium)
+                        .weight(1f),
+                )
+                IconButton(
+                    onClick = onApiKeySettingsClicked,
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Key,
+                        tint = colorScheme.onSurface,
+                        contentDescription = stringResource(R.string.your_keys_button)
+                    )
+                }
+            }
 
             ApiKeysList(
                 apiKeys = apiKeys,
@@ -362,8 +404,7 @@ private fun ChatInput(
     Row(
         modifier = Modifier
             .background(
-                color = colorScheme.surfaceContainer,
-                shape = RoundedCornerShape(
+                color = colorScheme.surfaceContainer, shape = RoundedCornerShape(
                     topStart = cornerRadius.large,
                     topEnd = cornerRadius.large,
                 )
@@ -372,8 +413,7 @@ private fun ChatInput(
             .padding(spacing.small),
         horizontalArrangement = Arrangement.spacedBy(spacing.small),
     ) {
-        TextField(
-            value = prompt,
+        TextField(value = prompt,
             onValueChange = { prompt = it },
             modifier = Modifier.weight(1f),
             colors = TextFieldDefaults.colors().copy(
@@ -386,8 +426,7 @@ private fun ChatInput(
                 disabledContainerColor = Color.Transparent,
                 errorContainerColor = Color.Transparent,
             ),
-            placeholder = { Text("Start Chatting") }
-        )
+            placeholder = { Text("Start Chatting") })
 
         IconButton(
             onClick = {
@@ -464,16 +503,12 @@ fun ErrorMessage(error: ChatApiError) {
             .fillMaxWidth()
             .padding(spacing.small)
             .background(
-                colorScheme.errorContainer,
-                RoundedCornerShape(spacing.small)
+                colorScheme.errorContainer, RoundedCornerShape(spacing.small)
             )
-            .padding(spacing.medium),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(spacing.medium), verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = colorScheme.error
+            imageVector = icon, contentDescription = null, tint = colorScheme.error
         )
 
         Spacer(modifier = Modifier.width(spacing.small))
@@ -486,11 +521,112 @@ fun ErrorMessage(error: ChatApiError) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ConversationSettings(
+    conversation: ConversationWithMessages?,
+    apiKeys: List<ApiKeyEntity>,
+    defaultApiKeyId: String?,
+    selectedApiKey: ApiKeyEntity?,
+    showBottomSheet: Boolean,
+    onApiKeyClicked: (apiKey: ApiKeyEntity) -> Unit,
+    onEditApiKeyClicked: (apiKey: ApiKeyEntity) -> Unit,
+    onSaveChatName: (chatName: String) -> Unit,
+    onDeleteChatConfirmed: () -> Unit,
+    onHideBottomSheet: () -> Unit,
+) {
+    val showRenameChatDialog = remember { mutableStateOf(false) }
+    val showKeySelectionDialog = remember { mutableStateOf(false) }
+    val showDeleteChatDialog = remember { mutableStateOf(false) }
+
+    val sheetState = rememberModalBottomSheetState()
+
+    if (showBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = onHideBottomSheet, sheetState = sheetState
+        ) {
+            ConversationSettingsBottomSheet(
+                onRenameClicked = {
+                    onHideBottomSheet()
+                    showRenameChatDialog.value = true
+                },
+                onChangeKeyClicked = {
+                    onHideBottomSheet()
+                    showKeySelectionDialog.value = true
+                },
+                onChangeModelClicked = {}, // TODO
+                onDeleteClicked = {
+                    onHideBottomSheet()
+                    showDeleteChatDialog.value = true
+                },
+            )
+        }
+    }
+
+    if (showRenameChatDialog.value) {
+        conversation?.conversation?.title?.let {
+            Dialog(
+                onDismissRequest = { showRenameChatDialog.value = false },
+            ) {
+                RenameDialog(initialInputText = conversation.conversation.title,
+                    onSaveConfirmed = { newChatName ->
+                        onSaveChatName(newChatName)
+                        showRenameChatDialog.value = false
+                    },
+                    onDismiss = { showRenameChatDialog.value = false })
+            }
+        }
+    }
+
+    if (showKeySelectionDialog.value) {
+        Dialog(
+            onDismissRequest = { showKeySelectionDialog.value = false },
+        ) {
+            ApiKeysList(
+                apiKeys = apiKeys,
+                defaultKeyId = defaultApiKeyId,
+                selectedKeyId = selectedApiKey?.id,
+                onItemClick = { apiKeyId ->
+                    apiKeys.firstOrNull { it.id == apiKeyId }?.let { apiKey ->
+                        onApiKeyClicked(apiKey)
+                        showKeySelectionDialog.value = false
+                    }
+                },
+                onItemLongClick = { apiKeyId ->
+                    apiKeys.firstOrNull { it.id == apiKeyId }?.let { apiKey ->
+                        onEditApiKeyClicked(apiKey)
+                        showKeySelectionDialog.value = false
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(shape = RoundedCornerShape(cornerRadius.large))
+                    .background(color = colorScheme.surfaceContainer),
+            )
+        }
+    }
+
+    if (showDeleteChatDialog.value) {
+        conversation?.conversation?.title?.let {
+            Dialog(
+                onDismissRequest = { showDeleteChatDialog.value = false },
+            ) {
+                DeleteConfirmationDialog(deletionTargetText = "\"${conversation.conversation.title}\"",
+                    onDeleteConfirmed = {
+                        onDeleteChatConfirmed()
+                        showDeleteChatDialog.value = false
+                    },
+                    onDismiss = { showDeleteChatDialog.value = false })
+            }
+        }
+    }
+}
+
 @PreviewLightDark
 @Composable
 fun ScreenPreviewWithChat() {
     AndroidaiTheme {
-        ChatWindow(
+        ChatScreen(
             conversation = chatMessagesPreviewList(),
             apiKeys = apiKeyPreviewList(),
             defaultApiKeyId = apiKeyPreviewList()[1].id,
@@ -503,6 +639,8 @@ fun ScreenPreviewWithChat() {
             onAddApiKeyClicked = {},
             onEditApiKeyClicked = {},
             onApiKeySettingsClicked = {},
+            onSaveChatName = {},
+            onDeleteChatConfirmed = {},
         )
     }
 }
@@ -511,7 +649,7 @@ fun ScreenPreviewWithChat() {
 @Composable
 fun ScreenPreviewWithKeys() {
     AndroidaiTheme {
-        ChatWindow(
+        ChatScreen(
             conversation = null,
             apiKeys = apiKeyPreviewList(),
             defaultApiKeyId = apiKeyPreviewList()[1].id,
@@ -524,6 +662,8 @@ fun ScreenPreviewWithKeys() {
             onAddApiKeyClicked = {},
             onEditApiKeyClicked = {},
             onApiKeySettingsClicked = {},
+            onSaveChatName = {},
+            onDeleteChatConfirmed = {},
         )
     }
 }
@@ -532,7 +672,7 @@ fun ScreenPreviewWithKeys() {
 @Composable
 fun ScreenPreviewNoKeys() {
     AndroidaiTheme {
-        ChatWindow(
+        ChatScreen(
             conversation = null,
             apiKeys = emptyList(),
             defaultApiKeyId = null,
@@ -545,6 +685,8 @@ fun ScreenPreviewNoKeys() {
             onAddApiKeyClicked = {},
             onEditApiKeyClicked = {},
             onApiKeySettingsClicked = {},
+            onSaveChatName = {},
+            onDeleteChatConfirmed = {},
         )
     }
 }

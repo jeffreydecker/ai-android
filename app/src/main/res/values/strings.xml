@@ -14,6 +14,9 @@
     <string name="app_title">Android.AI</string>
     <string name="app_prompt">Add or select a model to get started</string>
 
+    // General Buttons
+    <string name="settings">Settings</string>
+
     // General Fields
     <string name="title_field">Title</string>
     <string name="name_field">Name</string>
@@ -92,6 +95,13 @@
     <string name="your_chats_button">Your Chats</string>
     <string name="your_chats_title">Your Chats</string>
     <string name="user_label">You</string>
+
+    // Chat
+    <string name="chat_settings">Chat Settings</string>
+    <string name="edit_chat_name">Rename Chat</string>
+    <string name="change_chat_key">Change Chat Key</string>
+    <string name="change_chat_key_model">Change Chat Model</string>
+    <string name="delete_chat">Delete Chat</string>
 
     // Time
     <string name="time_just_now">Just now</string>

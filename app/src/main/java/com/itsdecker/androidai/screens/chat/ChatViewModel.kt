@@ -79,6 +79,14 @@ class ChatViewModel @Inject constructor(
 
     fun updateSelectedApiKey(selectedApiKey: ApiKeyEntity) {
         _selectedApiKey.value = selectedApiKey
+
+        _conversation.value?.let { thisConversationWithMessages ->
+            val updatedConversation = thisConversationWithMessages.conversation.copy(apiKeyId = selectedApiKey.id)
+            _conversation.value = thisConversationWithMessages.copy(conversation = updatedConversation)
+            viewModelScope.launch {
+                chatRepository.updateConversation(updatedConversation)
+            }
+        }
     }
 
     fun sendMessage(message: String) {
@@ -119,8 +127,24 @@ class ChatViewModel @Inject constructor(
         }
     }
 
+    fun updateChatName(name: String) {
+        _conversation.value?.let { thisConversationWithMessages ->
+            val updatedConversation = thisConversationWithMessages.conversation.copy(title = name)
+            _conversation.value = thisConversationWithMessages.copy(conversation = updatedConversation)
+            viewModelScope.launch {
+                chatRepository.updateConversation(updatedConversation)
+            }
+        }
+    }
+
+    fun deleteChat() = _conversation.value?.conversation?.let { thisConversation ->
+        viewModelScope.launch {
+            chatRepository.deleteConversation(thisConversation)
+            _conversation.value = null
+        }
+    }
+
     // Update local instance and database with new message
-    // TODO - Maybe move this to ApiRepository?
     private fun updateConversation(message: MessageEntity) {
         _conversation.value?.let { conversation ->
             val updatedConversation = conversation.copy(

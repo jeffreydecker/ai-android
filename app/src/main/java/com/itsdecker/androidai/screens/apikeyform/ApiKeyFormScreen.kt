@@ -159,7 +159,7 @@ fun ApiKeyFormScreen(
 
         if (showDeleteConformationDialog.value) {
             DeleteConfirmationDialog(
-                deletionTargetText = apiKeyEntity.name,
+                deletionTargetText = "\"${apiKeyEntity.name}\"",
                 onDeleteConfirmed = {
                     showDeleteConformationDialog.value = false
                     onDeleteClick.invoke()

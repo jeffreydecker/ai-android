@@ -1,36 +1,45 @@
 package com.itsdecker.androidai.screens.shared
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.window.Dialog
 import com.itsdecker.androidai.R
 import com.itsdecker.androidai.ui.theme.AndroidaiTheme
-import com.itsdecker.androidai.ui.theme.Typography
 import com.itsdecker.androidai.ui.theme.colorScheme
 import com.itsdecker.androidai.ui.theme.cornerRadius
 import com.itsdecker.androidai.ui.theme.spacing
 
 @Composable
-fun ConfirmationDialog(
+fun TextFieldDialog(
     title: String,
-    message: String,
+    initialInputText: String,
     confirmationText: String,
-    onConfirm: () -> Unit,
+    maxLines: Int = 1,
+    maxCharacters: Int = Int.MAX_VALUE,
+    onSaveConfirmed: (newText: String) -> Unit,
     onDismiss: () -> Unit,
 ) {
+    val inputText = remember { mutableStateOf("") }
+
+    LaunchedEffect(true) {
+        inputText.value = initialInputText
+    }
+
     Dialog(
         onDismissRequest = onDismiss,
     ) {
@@ -40,23 +49,24 @@ fun ConfirmationDialog(
                     color = colorScheme.surfaceContainer,
                     shape = RoundedCornerShape(cornerRadius.large)
                 )
-                .padding(spacing.medium),
-            verticalArrangement = Arrangement.spacedBy(spacing.small)
+                .padding(spacing.medium)
         ) {
-            Text(
-                text = title,
-                style = Typography.titleLarge,
-                color = colorScheme.onSurface,
-                fontWeight = FontWeight.Bold,
+            // Name
+            FormField(
+                title = title,
+                fieldView = {
+                    FormTextInput(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = inputText.value,
+                        maxCharacters = maxCharacters,
+                        maxLines = maxLines,
+                        onValueChanged = { inputText.value = it },
+                    )
+                }
             )
-            Text(
-                text = message,
-                style = Typography.bodyMedium,
-                color = colorScheme.onSurface,
-            )
+
             Row(
-                modifier = Modifier.align(Alignment.End),
-                horizontalArrangement = Arrangement.spacedBy(spacing.small),
+                modifier = Modifier.align(Alignment.End)
             ) {
                 TextButton(
                     onClick = onDismiss,
@@ -65,7 +75,7 @@ fun ConfirmationDialog(
                 }
 
                 Button(
-                    onClick = onConfirm,
+                    onClick = { onSaveConfirmed(inputText.value) },
                 ) {
                     Text(text = confirmationText)
                 }
@@ -75,29 +85,30 @@ fun ConfirmationDialog(
 }
 
 @Composable
-fun DeleteConfirmationDialog(
-    deletionTargetText: String,
-    onDeleteConfirmed: () -> Unit,
+fun RenameDialog(
+    initialInputText: String,
+    onSaveConfirmed: (newText: String) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    ConfirmationDialog(
-        title = stringResource(R.string.delete_confirmation_title, deletionTargetText),
-        message = stringResource(R.string.delete_confirmation_details, deletionTargetText),
-        confirmationText = stringResource(R.string.delete_option),
-        onConfirm = onDeleteConfirmed,
+    TextFieldDialog(
+        title = stringResource(R.string.name_field),
+        initialInputText = initialInputText,
+        confirmationText = stringResource(R.string.save_option),
+        maxLines = 2,
+        maxCharacters = 32,
+        onSaveConfirmed = onSaveConfirmed,
         onDismiss = onDismiss,
     )
 }
 
-
 @PreviewLightDark
 @Composable
-fun ConfirmationDialogPreview() {
+fun PreviewUpdateNameDialog() {
     AndroidaiTheme {
-        DeleteConfirmationDialog(
-            deletionTargetText = "\"My Api Key\"",
-            onDeleteConfirmed = {},
-            onDismiss = {}
+        RenameDialog(
+            initialInputText = "My New Chat",
+            onSaveConfirmed = {},
+            onDismiss = {},
         )
     }
 }
