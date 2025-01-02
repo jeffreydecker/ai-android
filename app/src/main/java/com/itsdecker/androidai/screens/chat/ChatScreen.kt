@@ -34,17 +34,14 @@ import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material.icons.rounded.WifiOff
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -61,7 +58,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import com.itsdecker.androidai.R
 import com.itsdecker.androidai.database.ApiKeyEntity
 import com.itsdecker.androidai.database.ConversationEntity
@@ -73,13 +69,11 @@ import com.itsdecker.androidai.screens.apikeyslist.ApiKeysList
 import com.itsdecker.androidai.screens.apikeyslist.ApiKeysListViewModel
 import com.itsdecker.androidai.screens.preview.apiKeyPreviewList
 import com.itsdecker.androidai.screens.preview.chatMessagesPreviewList
-import com.itsdecker.androidai.screens.shared.ConversationSettingsBottomSheet
-import com.itsdecker.androidai.screens.shared.DeleteConfirmationDialog
-import com.itsdecker.androidai.screens.shared.LoadingDots
-import com.itsdecker.androidai.screens.shared.NoKeysWelcomeNotice
-import com.itsdecker.androidai.screens.shared.RenameDialog
-import com.itsdecker.androidai.screens.shared.ScreenHeader
-import com.itsdecker.androidai.screens.shared.ScrollableContainer
+import com.itsdecker.androidai.screens.shared.bottomsheets.ConversationSettingsBottomSheet
+import com.itsdecker.androidai.screens.shared.components.LoadingDots
+import com.itsdecker.androidai.screens.shared.components.NoKeysWelcomeNotice
+import com.itsdecker.androidai.screens.shared.components.ScreenHeader
+import com.itsdecker.androidai.screens.shared.components.ScrollableContainer
 import com.itsdecker.androidai.ui.theme.AndroidaiTheme
 import com.itsdecker.androidai.ui.theme.colorScheme
 import com.itsdecker.androidai.ui.theme.cornerRadius
@@ -173,8 +167,8 @@ fun ChatScreen(
         }
     }
 
-    ConversationSettings(
-        conversation = conversation,
+    ConversationSettingsBottomSheet(
+        conversation = conversation?.conversation,
         apiKeys = apiKeys,
         defaultApiKeyId = defaultApiKeyId,
         selectedApiKey = selectedApiKey,
@@ -541,107 +535,6 @@ fun ErrorMessage(error: ChatApiError) {
             color = colorScheme.onErrorContainer,
             style = MaterialTheme.typography.bodyMedium
         )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ConversationSettings(
-    conversation: ConversationWithMessages?,
-    apiKeys: List<ApiKeyEntity>,
-    defaultApiKeyId: String?,
-    selectedApiKey: ApiKeyEntity?,
-    showBottomSheet: Boolean,
-    onApiKeyClicked: (apiKey: ApiKeyEntity) -> Unit,
-    onEditApiKeyClicked: (apiKey: ApiKeyEntity) -> Unit,
-    onSaveChatName: (chatName: String) -> Unit,
-    onDeleteChatConfirmed: () -> Unit,
-    onHideBottomSheet: () -> Unit,
-) {
-    val showRenameChatDialog = remember { mutableStateOf(false) }
-    val showKeySelectionDialog = remember { mutableStateOf(false) }
-    val showDeleteChatDialog = remember { mutableStateOf(false) }
-
-    val sheetState = rememberModalBottomSheetState()
-
-    if (showBottomSheet) {
-        ModalBottomSheet(
-            onDismissRequest = onHideBottomSheet, sheetState = sheetState
-        ) {
-            ConversationSettingsBottomSheet(
-                onRenameClicked = {
-                    onHideBottomSheet()
-                    showRenameChatDialog.value = true
-                },
-                onChangeKeyClicked = {
-                    onHideBottomSheet()
-                    showKeySelectionDialog.value = true
-                },
-                onChangeModelClicked = {}, // TODO
-                onDeleteClicked = {
-                    onHideBottomSheet()
-                    showDeleteChatDialog.value = true
-                },
-            )
-        }
-    }
-
-    if (showRenameChatDialog.value) {
-        conversation?.conversation?.title?.let {
-            Dialog(
-                onDismissRequest = { showRenameChatDialog.value = false },
-            ) {
-                RenameDialog(initialInputText = conversation.conversation.title,
-                    onSaveConfirmed = { newChatName ->
-                        onSaveChatName(newChatName)
-                        showRenameChatDialog.value = false
-                    },
-                    onDismiss = { showRenameChatDialog.value = false })
-            }
-        }
-    }
-
-    if (showKeySelectionDialog.value) {
-        Dialog(
-            onDismissRequest = { showKeySelectionDialog.value = false },
-        ) {
-            ApiKeysList(
-                apiKeys = apiKeys,
-                defaultKeyId = defaultApiKeyId,
-                selectedKeyId = selectedApiKey?.id,
-                onItemClick = { apiKeyId ->
-                    apiKeys.firstOrNull { it.id == apiKeyId }?.let { apiKey ->
-                        onApiKeyClicked(apiKey)
-                        showKeySelectionDialog.value = false
-                    }
-                },
-                onItemLongClick = { apiKeyId ->
-                    apiKeys.firstOrNull { it.id == apiKeyId }?.let { apiKey ->
-                        onEditApiKeyClicked(apiKey)
-                        showKeySelectionDialog.value = false
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(shape = RoundedCornerShape(cornerRadius.large))
-                    .background(color = colorScheme.surfaceContainer),
-            )
-        }
-    }
-
-    if (showDeleteChatDialog.value) {
-        conversation?.conversation?.title?.let {
-            Dialog(
-                onDismissRequest = { showDeleteChatDialog.value = false },
-            ) {
-                DeleteConfirmationDialog(deletionTargetText = "\"${conversation.conversation.title}\"",
-                    onDeleteConfirmed = {
-                        onDeleteChatConfirmed()
-                        showDeleteChatDialog.value = false
-                    },
-                    onDismiss = { showDeleteChatDialog.value = false })
-            }
-        }
     }
 }
 

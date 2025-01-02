@@ -17,6 +17,7 @@ import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.ListItemDefaults
@@ -33,9 +34,9 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.itsdecker.androidai.R
 import com.itsdecker.androidai.database.ApiKeyEntity
 import com.itsdecker.androidai.screens.preview.apiKeyPreviewList
-import com.itsdecker.androidai.screens.shared.NoKeysWelcomeNotice
-import com.itsdecker.androidai.screens.shared.ScreenHeader
-import com.itsdecker.androidai.screens.shared.ScrollableContainer
+import com.itsdecker.androidai.screens.shared.components.NoKeysWelcomeNotice
+import com.itsdecker.androidai.screens.shared.components.ScreenHeader
+import com.itsdecker.androidai.screens.shared.components.ScrollableContainer
 import com.itsdecker.androidai.ui.theme.AndroidaiTheme
 import com.itsdecker.androidai.ui.theme.colorScheme
 import com.itsdecker.androidai.ui.theme.spacing
@@ -78,7 +79,7 @@ fun ApiKeysListScreen(
                 title = stringResource(R.string.your_keys_title),
                 subtitle = null,
                 leadingIcon = {
-                    androidx.compose.material3.IconButton(
+                    IconButton(
                         onClick = onCloseClicked
                     ) {
                         Icon(

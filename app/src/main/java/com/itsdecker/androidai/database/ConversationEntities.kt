@@ -52,7 +52,7 @@ data class ConversationWithApiKey(
         parentColumn = "apiKeyId",
         entityColumn = "id"
     )
-    val apiKey: ApiKeyEntity,
+    val apiKey: ApiKeyEntity?,
     @Embedded
     val conversation: ConversationEntity,
 )

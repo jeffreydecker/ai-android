@@ -1,4 +1,4 @@
-package com.itsdecker.androidai.screens.shared
+package com.itsdecker.androidai.screens.shared.dialogs
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

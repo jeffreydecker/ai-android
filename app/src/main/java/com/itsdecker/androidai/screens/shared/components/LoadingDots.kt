@@ -1,4 +1,4 @@
-package com.itsdecker.androidai.screens.shared
+package com.itsdecker.androidai.screens.shared.components
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearOutSlowInEasing

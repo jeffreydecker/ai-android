@@ -1,7 +1,8 @@
 package com.itsdecker.androidai.screens.conversations
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,22 +23,26 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.itsdecker.androidai.R
+import com.itsdecker.androidai.data.SupportedProvider
 import com.itsdecker.androidai.database.ApiKeyEntity
+import com.itsdecker.androidai.database.ConversationEntity
 import com.itsdecker.androidai.database.ConversationWithApiKey
 import com.itsdecker.androidai.screens.preview.apiKeyPreviewList
 import com.itsdecker.androidai.screens.preview.conversationsList
-import com.itsdecker.androidai.screens.shared.NoChatsWelcomeNotice
-import com.itsdecker.androidai.screens.shared.NoKeysWelcomeNotice
-import com.itsdecker.androidai.screens.shared.ScreenHeader
-import com.itsdecker.androidai.screens.shared.ScrollableContainer
+import com.itsdecker.androidai.screens.shared.bottomsheets.ConversationSettingsBottomSheet
+import com.itsdecker.androidai.screens.shared.components.NoChatsWelcomeNotice
+import com.itsdecker.androidai.screens.shared.components.NoKeysWelcomeNotice
+import com.itsdecker.androidai.screens.shared.components.ScreenHeader
+import com.itsdecker.androidai.screens.shared.components.ScrollableContainer
 import com.itsdecker.androidai.ui.theme.AndroidaiTheme
 import com.itsdecker.androidai.ui.theme.colorScheme
 import com.itsdecker.androidai.ui.theme.spacing
@@ -50,16 +55,22 @@ fun ConversationsScreen(
 ) {
     val conversations = viewModel.conversations.collectAsState()
     val apiKeys = viewModel.apiKeys.collectAsState()
+    val defaultApiKeyId = viewModel.defaultApiKeyId.collectAsState()
 
     ConversationsScreen(
         modifier = modifier,
         conversations = conversations.value,
         apiKeys = apiKeys.value,
+        defaultApiKeyId = defaultApiKeyId.value,
         onConversationClicked = viewModel::goToConversation,
         onNewChatClicked = viewModel::startNewConversation,
         onAddKeyClicked = viewModel::goToAddKey,
         onKeysClicked = viewModel::goToKeys,
         onCloseClicked = viewModel::goBack,
+        onApiKeyClicked = viewModel::updateChatKey,
+        onEditApiKeyClicked = viewModel::editApiKey,
+        onUpdateChatName = viewModel::updateChatName,
+        onDeleteChat = viewModel::deleteChat,
     )
 }
 
@@ -68,12 +79,20 @@ fun ConversationsScreen(
     modifier: Modifier = Modifier,
     conversations: List<ConversationWithApiKey>,
     apiKeys: List<ApiKeyEntity>,
-    onConversationClicked: (conversationId: String, apiKeyId: String) -> Unit,
+    defaultApiKeyId: String?,
+    onConversationClicked: (conversationId: String, apiKeyId: String?) -> Unit,
     onNewChatClicked: () -> Unit,
     onAddKeyClicked: () -> Unit,
     onKeysClicked: () -> Unit,
     onCloseClicked: () -> Unit,
+    onApiKeyClicked: (conversation: ConversationEntity, apiKeyEntity: ApiKeyEntity) -> Unit,
+    onEditApiKeyClicked: (apiKeyEntity: ApiKeyEntity) -> Unit,
+    onUpdateChatName: (conversation: ConversationEntity, name: String) -> Unit,
+    onDeleteChat: (conversation: ConversationEntity) -> Unit,
 ) {
+    val conversationForSettings = remember { mutableStateOf<ConversationWithApiKey?>(null) }
+    val showConversationSettings = remember { mutableStateOf(false) }
+
     AndroidaiTheme {
         Column(
             modifier = modifier.fillMaxSize()
@@ -133,10 +152,30 @@ fun ConversationsScreen(
                 ChatsList(
                     modifier = contentModifier,
                     conversations = conversations,
+                    defaultApiKeyId = defaultApiKeyId,
                     onConversationClicked = onConversationClicked,
+                    onEditConversation = { conversation ->
+                        conversationForSettings.value = conversation
+                        showConversationSettings.value = true
+                    },
                     onNewChatClicked = onNewChatClicked,
                 )
             }
+        }
+
+        conversationForSettings.value?.let { conversation ->
+            ConversationSettingsBottomSheet(
+                conversation = conversation.conversation,
+                apiKeys = apiKeys,
+                defaultApiKeyId = defaultApiKeyId,
+                selectedApiKey = conversation.apiKey,
+                showBottomSheet = showConversationSettings.value,
+                onApiKeyClicked = { apiKey -> onApiKeyClicked(conversation.conversation, apiKey) },
+                onEditApiKeyClicked = onEditApiKeyClicked,
+                onSaveChatName = { name -> onUpdateChatName(conversation.conversation, name) },
+                onDeleteChatConfirmed = { onDeleteChat(conversation.conversation) },
+                onHideBottomSheet = { showConversationSettings.value = false },
+            )
         }
     }
 }
@@ -145,7 +184,9 @@ fun ConversationsScreen(
 fun ChatsList(
     modifier: Modifier = Modifier,
     conversations: List<ConversationWithApiKey>,
-    onConversationClicked: (conversationId: String, apiKeyId: String) -> Unit,
+    defaultApiKeyId: String?,
+    onConversationClicked: (conversationId: String, apiKeyId: String?) -> Unit,
+    onEditConversation: (conversation: ConversationWithApiKey) -> Unit,
     onNewChatClicked: () -> Unit,
 ) {
     ScrollableContainer(
@@ -158,7 +199,9 @@ fun ChatsList(
             items(conversations) { conversation ->
                 ConversationItem(
                     conversation = conversation,
+                    defaultApiKeyId = defaultApiKeyId,
                     onClick = onConversationClicked,
+                    onLongClick = onEditConversation,
                 )
             }
         }
@@ -172,10 +215,13 @@ fun ChatsList(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ConversationItem(
     conversation: ConversationWithApiKey,
-    onClick: (conversationId: String, apiKeyId: String) -> Unit,
+    defaultApiKeyId: String?,
+    onClick: (conversationId: String, apiKeyId: String?) -> Unit,
+    onLongClick: ((conversation: ConversationWithApiKey) -> Unit)? = null,
 ) {
     ListItem(
         headlineContent = {
@@ -194,17 +240,24 @@ fun ConversationItem(
         },
         leadingContent = {
             Icon(
-                painter = painterResource(conversation.apiKey.chatModel.icon),
+                painter = painterResource(
+                    conversation.apiKey?.chatModel?.icon ?: SupportedProvider.UNINITIALIZED.icon
+                ),
                 contentDescription = null,
-                tint = conversation.apiKey.chatModel.brandColor,
+                tint = conversation.apiKey?.chatModel?.brandColor ?: SupportedProvider.UNINITIALIZED.brandColor,
             )
         },
-        modifier = Modifier.clickable {
-            onClick(
-                conversation.conversation.id,
-                conversation.apiKey.id,
-            )
-        }
+        modifier = Modifier.combinedClickable(
+            onClick = {
+                onClick(
+                    conversation.conversation.id,
+                    conversation.apiKey?.id ?: defaultApiKeyId,
+                )
+            },
+            onLongClick = {
+                onLongClick?.invoke(conversation)
+            },
+        )
     )
 }
 
@@ -236,11 +289,16 @@ fun ConversationsScreenPreview() {
         ConversationsScreen(
             conversations = conversationsList(),
             apiKeys = apiKeyPreviewList(),
+            defaultApiKeyId = null,
             onConversationClicked = { _, _ -> },
             onNewChatClicked = {},
             onAddKeyClicked = {},
             onKeysClicked = {},
             onCloseClicked = {},
+            onApiKeyClicked = { _, _ -> },
+            onEditApiKeyClicked = { },
+            onUpdateChatName = { _, _ -> },
+            onDeleteChat = { },
         )
     }
 }
@@ -252,11 +310,16 @@ fun NoChatsConversationsScreenPreview() {
         ConversationsScreen(
             conversations = emptyList(),
             apiKeys = apiKeyPreviewList(),
+            defaultApiKeyId = null,
             onConversationClicked = { _, _ -> },
             onNewChatClicked = {},
             onAddKeyClicked = {},
             onKeysClicked = {},
             onCloseClicked = {},
+            onApiKeyClicked = { _, _ -> },
+            onEditApiKeyClicked = { },
+            onUpdateChatName = { _, _ -> },
+            onDeleteChat = { },
         )
     }
 }
@@ -268,11 +331,16 @@ fun NoKeysConversationsScreenPreview() {
         ConversationsScreen(
             conversations = emptyList(),
             apiKeys = emptyList(),
+            defaultApiKeyId = null,
             onConversationClicked = { _, _ -> },
             onNewChatClicked = {},
             onAddKeyClicked = {},
             onKeysClicked = {},
             onCloseClicked = {},
+            onApiKeyClicked = { _, _ -> },
+            onEditApiKeyClicked = { },
+            onUpdateChatName = { _, _ -> },
+            onDeleteChat = { },
         )
     }
 }

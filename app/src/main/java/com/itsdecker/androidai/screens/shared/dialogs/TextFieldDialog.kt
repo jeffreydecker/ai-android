@@ -1,4 +1,4 @@
-package com.itsdecker.androidai.screens.shared
+package com.itsdecker.androidai.screens.shared.dialogs
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -19,6 +19,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.window.Dialog
 import com.itsdecker.androidai.R
+import com.itsdecker.androidai.screens.shared.components.FormField
+import com.itsdecker.androidai.screens.shared.components.FormTextInput
 import com.itsdecker.androidai.ui.theme.AndroidaiTheme
 import com.itsdecker.androidai.ui.theme.colorScheme
 import com.itsdecker.androidai.ui.theme.cornerRadius
