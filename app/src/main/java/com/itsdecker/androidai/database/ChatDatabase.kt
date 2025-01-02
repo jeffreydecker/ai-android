@@ -14,7 +14,10 @@ import com.itsdecker.androidai.database.typeconverter.SupportedProviderTypeConve
         ConversationEntity::class,
         MessageEntity::class,
     ],
-    version = 3,
+    autoMigrations = [
+        AutoMigration(from = 3, to = 4),
+    ],
+    version = 4,
 )
 @TypeConverters(SupportedProviderTypeConverter::class)
 abstract class ChatDatabase : RoomDatabase() {

@@ -15,14 +15,13 @@ import java.util.UUID
             entity = ApiKeyEntity::class,
             parentColumns = ["id"],
             childColumns = ["apiKeyId"],
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.SET_NULL,
         )
     ],
-    indices = [Index("apiKeyId")]
 )
 data class ConversationEntity(
     @PrimaryKey val id: String = UUID.randomUUID().toString(),
-    val apiKeyId: String,
+    val apiKeyId: String?,
     val title: String? = null,
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis(),

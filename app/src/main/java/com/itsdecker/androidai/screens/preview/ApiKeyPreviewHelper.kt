@@ -11,7 +11,7 @@ fun apiKeyPreviewList(): List<ApiKeyEntity> = listOf(
         createdAt = System.currentTimeMillis(),
         name = "My Anthropic Key",
         description = "This is my general purpose Anthropic key",
-        apiKey = "",
+        apiKey = "this is a completely fake key",
         chatModel = SupportedProvider.Anthropic,
     ),
     ApiKeyEntity(

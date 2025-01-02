@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 3,
-    "identityHash": "678167a0c5686baec23fe4262cb43a62",
+    "version": 4,
+    "identityHash": "2cab271c7d2a3a269b87d78b208370d7",
     "entities": [
       {
         "tableName": "ApiKey",
@@ -95,17 +95,7 @@
             "id"
           ]
         },
-        "indices": [
-          {
-            "name": "index_Conversation_apiKeyId",
-            "unique": false,
-            "columnNames": [
-              "apiKeyId"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_Conversation_apiKeyId` ON `${TABLE_NAME}` (`apiKeyId`)"
-          }
-        ],
+        "indices": [],
         "foreignKeys": [
           {
             "table": "ApiKey",
@@ -190,7 +180,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '678167a0c5686baec23fe4262cb43a62')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2cab271c7d2a3a269b87d78b208370d7')"
     ]
   }
 }

@@ -38,6 +38,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
@@ -200,6 +201,7 @@ fun ApiKeyFields(
                 fieldView = {
                     FormFieldProviderChips(
                         modifier = Modifier.fillMaxWidth(),
+                        isExistingKey = isExistingKey,
                         selectedProvider = apiKeyEntity.chatModel,
                         supportedProviders = SUPPORTED_PROVIDERS,
                         onProviderSelected = onProviderSelected,
@@ -367,6 +369,7 @@ fun ApiKeyButtons(
 @Composable
 fun FormFieldProviderChips(
     modifier: Modifier = Modifier,
+    isExistingKey: Boolean,
     selectedProvider: SupportedProvider?,
     supportedProviders: List<SupportedProvider>,
     onProviderSelected: (provider: SupportedProvider) -> Unit,
@@ -396,8 +399,9 @@ fun FormFieldProviderChips(
 
             Row(
                 modifier = chipModifier
-                    .clickable { onProviderSelected(provider) }
-                    .padding(vertical = spacing.small, horizontal = spacing.medium),
+                    .clickable(enabled = !isExistingKey) { onProviderSelected(provider) }
+                    .padding(vertical = spacing.small, horizontal = spacing.medium)
+                    .alpha(if (isExistingKey) 0.4f else 1f),
                 horizontalArrangement = Arrangement.spacedBy(spacing.small),
             ) {
                 Icon(

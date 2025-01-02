@@ -98,10 +98,11 @@ class ApiKeyViewModel @Inject constructor(
         if (!canSave()) return
 
         viewModelScope.launch {
-            async {
-                chatRepository.createApiKey(apiKey = _apiKeyEntity.value)
-                if (_isDefaultKey.value) settingsRepository.setDefaultApiKeyId(_apiKeyEntity.value.id)
-            }.await()
+            when(isNewKey) {
+                true -> chatRepository.createApiKey(apiKey = _apiKeyEntity.value)
+                false -> chatRepository.updateApiKey(apiKey = _apiKeyEntity.value)
+            }
+            if (_isDefaultKey.value) settingsRepository.setDefaultApiKeyId(_apiKeyEntity.value.id)
             navigator.goBack()
         }
     }

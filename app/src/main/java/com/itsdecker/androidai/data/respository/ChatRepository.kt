@@ -21,8 +21,9 @@ class ChatRepository @Inject constructor(
 
     // API Keys
 
-    suspend fun createApiKey(apiKey: ApiKeyEntity) =
-        withContext(Dispatchers.IO) { apiKeyDao.insertModel(apiKey) }
+    suspend fun createApiKey(apiKey: ApiKeyEntity) = withContext(Dispatchers.IO) {
+        apiKeyDao.insertModel(apiKey)
+    }
 
     fun getAllApiKeys() = apiKeyDao.getAllApiKeys()
 
@@ -31,6 +32,10 @@ class ChatRepository @Inject constructor(
     }
 
     fun getLatestApiKey() = apiKeyDao.getLatestApiKey()
+
+    suspend fun updateApiKey(apiKey: ApiKeyEntity) = withContext(Dispatchers.IO) {
+        apiKeyDao.updateApiKey(apiKey)
+    }
 
     suspend fun deleteApiKey(apiKey: ApiKeyEntity) = withContext(Dispatchers.IO) {
         apiKeyDao.deleteApiKey(apiKey)
