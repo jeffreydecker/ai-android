@@ -260,35 +260,14 @@ fun ChatContent(
     onEditApiKeyClicked: (apiKey: ApiKeyEntity) -> Unit,
     onApiKeySettingsClicked: () -> Unit,
 ) {
-    // TODO - This is currently an easy way to keep chat scrolling. Longer term it would be nice
-    //  to modify this to scroll to show the last the beginning of the latest response if it doesn't
-    //  fit within the chat window. This is pretty easy to do with a naive approach but might be fun
-    //  to tackle as a more complex task.
-    val chatListState = rememberLazyListState()
-    LaunchedEffect(conversation?.messages) {
-        chatListState.animateScrollToItem(chatListState.layoutInfo.totalItemsCount)
-    }
-
     ScrollableContainer(
         modifier = modifier,
     ) {
         if (conversation?.messages?.isNotEmpty() == true) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(all = spacing.medium),
-                state = chatListState,
-                verticalArrangement = Arrangement.spacedBy(spacing.small)
-            ) {
-                items(conversation.messages) { message ->
-                    ChatBubble(message)
-                }
-
-                if (isLoading) {
-                    item {
-                        LoadingDots(modifier = Modifier.padding(start = spacing.tiny))
-                    }
-                }
-            }
+            ChatMessagesViewReversed(
+                conversation = conversation,
+                isLoading = isLoading,
+            )
         } else {
             EmptyChatPlaceholder(
                 modifier = Modifier
