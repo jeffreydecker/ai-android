@@ -1,17 +1,18 @@
-package com.itsdecker.androidai.network.deepseek
+package com.itsdecker.androidai.network.openai
 
 import com.google.gson.annotations.SerializedName
 import com.itsdecker.androidai.network.Message
 
-data class DeepSeekRequest(
-    @SerializedName(value = "max_tokens")
-    val maxTokens: Int = DEEP_SEEK_DEFAULT_MAX_TOKENS,
-    val model: String = DEEP_SEEK_CHAT,
-    val temperature: Double = DEEP_SEEK_DEFAULT_TEMPERATURE,
+
+data class OpenAiRequest(
+    @SerializedName(value = "max_completion_tokens")
+    val maxTokens: Int = OPEN_AI_DEFAULT_MAX_TOKENS,
+    val model: String = OPEN_AI_MODEL_DEFAULT,
     val messages: List<Message>,
+    val temperature: Double = OPEN_AI_DEFAULT_TEMPERATURE,
 )
 
-data class DeepSeekResponse(
+data class OpenAiResponse(
     val id: String,
     @SerializedName("object")
     val apiObject: String, // Should always be "chat.completion"
@@ -19,7 +20,8 @@ data class DeepSeekResponse(
     val created: Long,
     val model: String,
     @SerializedName("system_fingerprint")
-    val systemFingerprint: String,    val usage: Usage,
+    val systemFingerprint: String,
+    val usage: Usage,
 )
 
 data class Choice(
@@ -27,6 +29,7 @@ data class Choice(
     val finishReason: FinishReason,
     val index: Int,
     val message: Message,
+    val refusal: String,
 )
 
 data class Usage(
@@ -41,8 +44,8 @@ data class Usage(
 enum class FinishReason {
     @SerializedName("content_filter")
     CONTENT_FILTER,
-    @SerializedName("insufficient_system_resource")
-    INSUFFICIENT_SYSTEM_RESOURCE,
+    @SerializedName("function_call")
+    FUNCTION_CALL,
     @SerializedName("length")
     LENGTH,
     @SerializedName("stop")

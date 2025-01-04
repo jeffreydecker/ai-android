@@ -6,14 +6,15 @@ import com.itsdecker.androidai.database.MessageEntity
 import com.itsdecker.androidai.network.ChatApiClient
 import com.itsdecker.androidai.network.anthropic.AnthropicApiClient
 import com.itsdecker.androidai.network.deepseek.DeepSeekApiClient
+import com.itsdecker.androidai.network.openai.OpenAiApiClient
 import javax.inject.Inject
 import javax.inject.Singleton
-
 
 @Singleton
 class ApiRepository @Inject constructor(
     private val anthropicApi: AnthropicApiClient,
     private val deepSeekApi: DeepSeekApiClient,
+    private val openAiApi: OpenAiApiClient,
 ) {
 
     suspend fun sendMessage(
@@ -30,7 +31,7 @@ class ApiRepository @Inject constructor(
         when(chatModel) {
             SupportedProvider.Anthropic -> anthropicApi
             SupportedProvider.DeepSeek -> deepSeekApi
-            SupportedProvider.OpenAI,
+            SupportedProvider.OpenAI -> openAiApi
             SupportedProvider.Google,
             SupportedProvider.OpenRouter,
             SupportedProvider.UNINITIALIZED,

@@ -7,7 +7,7 @@ const val DEEP_SEEK_BASE_URL = "https://api.deepseek.com/v1/"
 const val DEEP_SEEK_CHAT = "deepseek-chat"
 
 // TOKENS
-const val DEEP_SEEK_DEFAULT_MAX_TOKENS = 4096
+const val DEEP_SEEK_DEFAULT_MAX_TOKENS = 1024
 
 // Temperature
 const val DEEP_SEEK_DEFAULT_TEMPERATURE = 1.0

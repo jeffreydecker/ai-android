@@ -21,8 +21,8 @@ const val ANTHROPIC_API_DEFAULT_MAX_TOKENS = 1024
 const val ANTHROPIC_API_DEFAULT_TEMPERATURE = 1.0
 
 // Roles - TODO - Convert to an enum with retrofit annotations
-const val ANTHROPIC_MESSENGER_ROLE_USER = "user"
-const val ANTHROPIC_MESSENGER_ROLE_ASSISTANT = "assistant"
+const val ANTHROPIC_ROLE_USER = "user"
+const val ANTHROPIC_ROLE_ASSISTANT = "assistant"
 
 // Content Types - TODO - Fill in more types and convert to enum with retrofit annotations
 const val ANTHROPIC_API_TEXT_CONTENT_TYPE = "text"

@@ -4,8 +4,6 @@ import com.itsdecker.androidai.database.ConversationEntity
 import com.itsdecker.androidai.database.ConversationWithMessages
 import com.itsdecker.androidai.database.MessageEntity
 import com.itsdecker.androidai.network.ChatRole
-import com.itsdecker.androidai.network.anthropic.ANTHROPIC_MESSENGER_ROLE_ASSISTANT
-import com.itsdecker.androidai.network.anthropic.ANTHROPIC_MESSENGER_ROLE_USER
 import java.util.UUID
 
 fun chatMessagesPreviewList(): ConversationWithMessages {

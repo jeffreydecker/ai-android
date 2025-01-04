@@ -44,5 +44,6 @@ class DeepSeekApiClient @Inject constructor() : ChatApiClient(baseUrl = DEEP_SEE
     private fun String.toDeepSeekRole() = when (this.toRole()) {
         ChatRole.Assistant -> DEEP_SEEK_ROLE_ASSISTANT
         ChatRole.User -> DEEP_SEEK_ROLE_USER
+        ChatRole.System -> DEEP_SEEK_ROLE_SYSTEM
     }
 }

@@ -71,9 +71,4 @@ abstract class ChatApiClient constructor(
             throw ChatApiError.UnknownError(e.message ?: "Unknown error occurred")
         }
     }
-
-    private fun String.toDeepSeekRole() = when (this.toRole()) {
-        ChatRole.Assistant -> DEEP_SEEK_ROLE_ASSISTANT
-        ChatRole.User -> DEEP_SEEK_ROLE_USER
-    }
 }
